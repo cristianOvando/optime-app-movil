@@ -4,6 +4,7 @@ import '../services/contact_validate.dart';
 import '../utils/helpers.dart';
 import '../components/my_textfield.dart';
 import '../components/my_button.dart';
+import 'package:flutter/services.dart';
 
 class ValidateCodeScreen extends StatefulWidget {
   const ValidateCodeScreen({super.key});
@@ -92,29 +93,80 @@ class _ValidateCodeScreenState extends State<ValidateCodeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: Color(0xFF167BCE),
+          ),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+        centerTitle: true,
+      ),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20.0),
           child: Column(
             children: [
+              const Icon(
+                Icons.lock,
+                size: 80,
+              ),
               const Text(
-                'Validar Código',
+                'Código de verificación',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 60),
               MyTextField(
                 controller: codeController,
-                hintText: 'Ingresa el código enviado a tu correo',
+                hintText: 'Ingresa el código recibido',
                 obscureText: false,
+                prefixIcon: const Icon(Icons.numbers),
+                width: 400,
+                height: 70,
+                borderRadius: 15.0,
+                hintTextStyle: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 16,
+                ),
+                textStyle: TextStyle(
+                  color: Colors.black,
+                  fontSize: 18,
+                ),
+                enabledBorderSide: BorderSide(
+                  color: const Color.fromARGB(255, 181, 206, 227),
+                  width: 0.5,
+                ),
+                focusedBorderSide: BorderSide(
+                  color: const Color.fromARGB(255, 75, 151, 213),
+                  width: 1.5,
+                ),
+                fillColor: Colors.white,
+                keyboardType: TextInputType.number, 
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly], 
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
               isLoading
                   ? const CircularProgressIndicator()
                   : MyButton(
                       onTap: validateCode,
                       buttonText: 'Validar Código',
-                      width: double.infinity,
+                      width: 300,
                       height: 50.0,
+                      borderRadius: 20.0,
+                      color: Color(0xFF167BCE),
+                      textColor: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      borderSide: BorderSide(
+                        color: Colors.black,
+                        width: 0.5,
+                      ),
                     ),
             ],
           ),

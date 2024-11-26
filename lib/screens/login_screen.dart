@@ -149,7 +149,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             '¿Olvidaste tu contraseña?',
                             style: TextStyle(
                               fontSize: 14,
-                              color: Colors.blue,
+                              color: Color(0xFF167BCE),
                               decoration: TextDecoration.underline,
                             ),
                           ),
@@ -166,7 +166,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       width: 300,
                       height: 50.0,
                       borderRadius: 20.0,
-                      color: Colors.blue,
+                      color: Color(0xFF167BCE),
                       textColor: Colors.white,
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
