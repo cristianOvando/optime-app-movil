@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AuthService {
   static Future<Map<String, dynamic>?> login(String username, String password) async {
   try {
-    final url = Uri.parse('${Constants.baseUrl}login');
+    final url = Uri.parse('${Constants.baseUrl}/users/login');
     print('URL: $url');
     print('Enviando datos: username=$username, password=<oculto por seguridad>');
 
@@ -87,7 +87,7 @@ class AuthService {
         throw Exception('Token no disponible. Inicia sesión nuevamente.');
       }
 
-      final url = Uri.parse('${Constants.baseUrl}users/$userId');
+      final url = Uri.parse('${Constants.baseUrl}/users/$userId');
       print('URL para obtener usuario: $url');
 
       final response = await http.get(
@@ -124,7 +124,7 @@ class AuthService {
         throw Exception('Token no disponible. Inicia sesión nuevamente.');
       }
 
-      final url = Uri.parse('${Constants.baseUrl}users/$userId');
+      final url = Uri.parse('${Constants.baseUrl}/users/$userId');
       print('URL para actualizar contraseña: $url');
 
       final response = await http.put(
@@ -144,7 +144,10 @@ class AuthService {
       } else if (response.statusCode == 404) {
         return {'error': 'Usuario no encontrado', 'message': 'ID no válido.'};
       } else {
-        return {'error': 'Error desconocido', 'message': response.body};
+        return {
+          'error': 'Error: ${response.statusCode}',
+          'message': jsonDecode(response.body)['message'] ?? 'Error inesperado',
+        };
       }
     } catch (e) {
       print('Excepción en updatePassword: $e');
@@ -152,43 +155,38 @@ class AuthService {
     }
   }
 
-  static Future<Map<String, dynamic>?> register(String username, String password, String contactId) async {
-    try {
-      final url = Uri.parse('${Constants.baseUrl}users');
-      print('URL: $url');
-      print('Enviando datos de registro');
+   static Future<Map<String, dynamic>?> register(String username, String password, String contactId) async {
+  try {
+    final url = Uri.parse('${Constants.baseUrl}/users/');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'username': username,
+        'password': password,
+        'contact_id': contactId,
+      }),
+    );
 
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'username': username,
-          'password': password,
-          'contact_id': contactId,
-        }),
-      );
+    print('Estado HTTP: ${response.statusCode}');
+    print('Cuerpo de respuesta: ${response}');
 
-      print('Respuesta recibida: ${response.statusCode}');
-      print('Cuerpo de la respuesta: ${response.body}');
-
-      if (response.statusCode == 201) {
-        return jsonDecode(response.body);
-      } else {
-        String? errorMessage;
-        try {
-          final errorBody = jsonDecode(response.body);
-          errorMessage = errorBody['message'];
-        } catch (e) {
-          errorMessage = 'Error desconocido.';
-        }
-        return {
-          'error': 'Error: ${response.statusCode}',
-          'message': errorMessage,
-        };
-      }
-    } catch (e) {
-      print('Excepción: $e');
-      return {'error': 'Exception', 'message': e.toString()};
+    if (response.body.isEmpty) {
+      return {'error': 'Respuesta vacía', 'message': 'El servidor no devolvió datos.'};
     }
+
+    final responseBody = jsonDecode(response.body);
+
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      return responseBody;
+    } else {
+      return {
+        'error': 'Error: ${response.statusCode}',
+        'message': responseBody['message'] ?? 'Error inesperado',
+      };
+    }
+  } catch (e) {
+    return {'error': 'Exception', 'message': e.toString()};
   }
+}
 }
