@@ -7,17 +7,31 @@ class Helpers {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Error', style: TextStyle(color: Colors.red)),
-          content: Text(message),
+          title: const Text(
+            'Error',
+            style: TextStyle(color: Colors.red, fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          content: SingleChildScrollView(
+            child: Text(
+              message,
+              style: const TextStyle(fontSize: 16, color: Colors.black54),
+            ),
+          ),
           actions: [
-            MyButton(
-              onTap: () => Navigator.pop(context),
-              buttonText: 'Aceptar',
-              width: double.infinity,
-              height: 50,
-              borderRadius: 12.0,
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: MyButton(
+                onTap: () => Navigator.pop(context),
+                buttonText: 'Aceptar',
+                width: double.infinity,
+                height: 50,
+                borderRadius: 12.0,
+              ),
             ),
           ],
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
+          ),
         );
       },
     );
@@ -33,24 +47,44 @@ class Helpers {
             children: [
               const Icon(Icons.check_circle, color: Colors.blue, size: 30),
               const SizedBox(width: 5),
-              Text(title, style: const TextStyle(color: Colors.blue)),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    color: Colors.blue,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
             ],
           ),
-          content: Text(message),
+          content: SingleChildScrollView(
+            child: Text(
+              message,
+              style: const TextStyle(fontSize: 16, color: Colors.black54),
+            ),
+          ),
           actions: [
-            MyButton(
-              onTap: () {
-                Navigator.pop(context);
-                if (nextRoute != null) {
-                  Navigator.pushNamed(context, nextRoute);
-                }
-              },
-              buttonText: 'Aceptar',
-              width: double.infinity,
-              height: 50,
-              borderRadius: 12.0,
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: MyButton(
+                onTap: () {
+                  Navigator.pop(context);
+                  if (nextRoute != null) {
+                    Navigator.pushNamed(context, nextRoute);
+                  }
+                },
+                buttonText: 'Aceptar',
+                width: double.infinity,
+                height: 50,
+                borderRadius: 12.0,
+              ),
             ),
           ],
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
+          ),
         );
       },
     );

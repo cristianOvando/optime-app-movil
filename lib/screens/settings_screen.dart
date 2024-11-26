@@ -24,10 +24,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
   int? userId;
   Map<String, dynamic>? userInfo;
 
+  String selectedEditOption = 'Username';
+
+  bool hasMinLength = false;
+  bool hasUppercase = false;
+  bool hasNumber = false;
+
   @override
   void initState() {
     super.initState();
     loadUserId();
+    newPasswordController.addListener(validatePasswordRequirements);
   }
 
   Future<void> loadUserId() async {
@@ -73,84 +80,90 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+  void validatePasswordRequirements() {
+    final password = newPasswordController.text;
+    setState(() {
+      hasMinLength = password.length >= 8;
+      hasUppercase = password.contains(RegExp(r'[A-Z]'));
+      hasNumber = password.contains(RegExp(r'[0-9]'));
+    });
+  }
+
   Future<void> updatePassword() async {
-    final newPassword = newPasswordController.text;
+  if (!hasMinLength || !hasUppercase || !hasNumber) {
+    Helpers.showErrorDialog(
+      context,
+      'Asegúrate de que la contraseña cumpla con todos los requisitos.',
+    );
+    return;
+  }
 
-    if (!validatePassword(newPassword)) {
-      Helpers.showErrorDialog(context,
-          'La nueva contraseña debe tener al menos 8 caracteres, incluir letras y números.');
-      return;
-    }
+  setState(() => isLoading = true);
+  try {
+    final headers = await AuthService().getAuthHeader();
+    final url = Uri.parse('${Constants.baseUrl}/users/$userId');
+    final response = await http.put(
+      url,
+      headers: headers,
+      body: jsonEncode({'password': newPasswordController.text}),
+    );
 
-    setState(() => isLoading = true);
-    try {
-      final headers = await AuthService().getAuthHeader();
-      final url = Uri.parse('${Constants.baseUrl}/users/$userId');
-      final response = await http.put(
-        url,
-        headers: headers,
-        body: jsonEncode({'password': newPassword}),
+    if (response.statusCode == 200) {
+      Helpers.showSuccessDialog(
+        context,
+        'Contraseña Actualizada',
+        'Tu contraseña ha sido actualizada correctamente.',
       );
-
-      if (response.statusCode == 200) {
-        Helpers.showSuccessDialog(
-          context,
-          'Contraseña Actualizada',
-          'Tu contraseña ha sido actualizada correctamente.',
-        );
-      } else if (response.statusCode == 404) {
-        Helpers.showErrorDialog(context, 'Usuario no encontrado.');
-      } else {
-        Helpers.showErrorDialog(
-          context,
-          'Error al actualizar contraseña: ${response.body}',
-        );
-      }
-    } catch (e) {
-      Helpers.showErrorDialog(context, 'Error de conexión: $e');
-    } finally {
-      setState(() => isLoading = false);
-    }
-  }
-
-  Future<void> updateUsername() async {
-    final newUsername = usernameController.text.trim();
-
-    if (newUsername.isEmpty) {
-      Helpers.showErrorDialog(context, 'El nombre de usuario no puede estar vacío.');
-      return;
-    }
-
-    setState(() => isLoading = true);
-    try {
-      final headers = await AuthService().getAuthHeader();
-      final url = Uri.parse('${Constants.baseUrl}/users/$userId');
-      final response = await http.put(
-        url,
-        headers: headers,
-        body: jsonEncode({'username': newUsername}),
+      await fetchUserInfo(); // Refrescar datos del usuario
+    } else if (response.statusCode == 404) {
+      Helpers.showErrorDialog(context, 'Usuario no encontrado.');
+    } else {
+      Helpers.showErrorDialog(
+        context,
+        'Error al actualizar contraseña',
       );
-
-      if (response.statusCode == 200) {
-        Helpers.showSuccessDialog(
-          context,
-          'Usuario Actualizado',
-          'Tu nombre de usuario ha sido actualizado correctamente.',
-        );
-      } else {
-        Helpers.showErrorDialog(context, 'Error al actualizar el usuario.');
-      }
-    } catch (e) {
-      Helpers.showErrorDialog(context, 'Error de conexión: $e');
-    } finally {
-      setState(() => isLoading = false);
     }
+  } catch (e) {
+    Helpers.showErrorDialog(context, 'Error de conexión: $e');
+  } finally {
+    setState(() => isLoading = false);
+  }
+}
+
+Future<void> updateUsername() async {
+  final newUsername = usernameController.text.trim();
+
+  if (newUsername.isEmpty) {
+    Helpers.showErrorDialog(context, 'El nombre de usuario no puede estar vacío.');
+    return;
   }
 
-  bool validatePassword(String password) {
-    final passwordRegex = RegExp(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$');
-    return passwordRegex.hasMatch(password);
+  setState(() => isLoading = true);
+  try {
+    final headers = await AuthService().getAuthHeader();
+    final url = Uri.parse('${Constants.baseUrl}/users/$userId');
+    final response = await http.put(
+      url,
+      headers: headers,
+      body: jsonEncode({'username': newUsername}),
+    );
+
+    if (response.statusCode == 200) {
+      Helpers.showSuccessDialog(
+        context,
+        'Usuario Actualizado',
+        'Tu nombre de usuario ha sido actualizado correctamente.',
+      );
+      await fetchUserInfo(); 
+    } else {
+      Helpers.showErrorDialog(context, 'Error al actualizar el usuario.');
+    }
+  } catch (e) {
+    Helpers.showErrorDialog(context, 'Error de conexión: $e');
+  } finally {
+    setState(() => isLoading = false);
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -199,7 +212,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       const SizedBox(height: 10),
                       Row(
                         children: [
-                          const Text('Contraseña: ********'),
+                          Text(showCurrentPassword
+                              ? 'Contraseña: ${userInfo!['password']}'
+                              : 'Contraseña: ********'),
                           IconButton(
                             icon: Icon(
                               showCurrentPassword
@@ -225,50 +240,158 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                       ),
                       const SizedBox(height: 10),
-                      MyTextField(
-                        controller: usernameController,
-                        hintText: 'Nuevo Nombre de Usuario',
-                        obscureText: false,
-                        borderRadius: 15.0,
-                        textStyle: const TextStyle(color: Colors.black, fontSize: 16),
-                        fillColor: const Color(0xFFF7F8FA),
-                        enabledBorderSide: const BorderSide(color: Colors.grey),
-                        focusedBorderSide: const BorderSide(color: Color(0xFF167BCE), width: 1.5),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF4B97D5),
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            value: selectedEditOption,
+                            icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
+                            isExpanded: true,
+                            dropdownColor: const Color(0xFF4B97D5),
+                            items: <String>['Username', 'Password'].map((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(
+                                  value,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                selectedEditOption = value!;
+                              });
+                            },
+                          ),
+                        ),
                       ),
                       const SizedBox(height: 20),
-                      MyButton(
-                        onTap: isLoading ? null : updateUsername,
-                        buttonText: 'Actualizar Usuario',
-                        width: double.infinity,
-                        height: 50,
-                        borderRadius: 15.0,
-                        color: const Color(0xFF167BCE),
-                        textColor: Colors.white,
-                      ),
-                       const SizedBox(height: 10),
-                      MyTextField(
-                        controller: newPasswordController,
-                        hintText: 'Nueva Contraseña',
-                        obscureText: true,
-                        borderRadius: 15.0,
-                        textStyle: const TextStyle(color: Colors.black, fontSize: 16),
-                        fillColor: const Color(0xFFF7F8FA),
-                        enabledBorderSide: const BorderSide(color: Colors.grey),
-                        focusedBorderSide: const BorderSide(color: Color(0xFF167BCE), width: 1.5),
-                      ),
-                      const SizedBox(height: 20),
-                      MyButton(
-                        onTap: isLoading ? null : updatePassword,
-                        buttonText: 'Actualizar Contraseña',
-                        width: double.infinity,
-                        height: 50,
-                        borderRadius: 15.0,
-                        color: const Color(0xFF167BCE),
-                        textColor: Colors.white,
-                      ),
+                      if (selectedEditOption == 'Username')
+                        Column(
+                          children: [
+                            MyTextField(
+                              controller: usernameController,
+                              hintText: 'Nuevo Username',
+                              obscureText: false,
+                              prefixIcon: const Icon(Icons.person),
+                              width: 400,
+                              height: 60,
+                              borderRadius: 15.0,
+                              hintTextStyle: const TextStyle(
+                                color: Colors.grey,
+                                fontSize: 16,
+                              ),
+                              textStyle: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 18,
+                              ),
+                              enabledBorderSide: const BorderSide(
+                                color: Color(0xFFB5CEE3),
+                                width: 0.5,
+                              ),
+                              focusedBorderSide: const BorderSide(
+                                color: Color(0xFF4B97D5),
+                                width: 1.5,
+                              ),
+                              fillColor: Colors.white,
+                            ),
+                            const SizedBox(height: 20),
+                            MyButton(
+                              onTap: isLoading ? null : updateUsername,
+                              buttonText: 'Actualizar Username',
+                              width: 300,
+                              height: 50.0,
+                              borderRadius: 20.0,
+                              color: const Color(0xFF167BCE),
+                              textColor: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ],
+                        ),
+                      if (selectedEditOption == 'Password')
+                        Column(
+                          children: [
+                            MyTextField(
+                              controller: newPasswordController,
+                              hintText: 'Nueva Contraseña',
+                              obscureText: true,
+                              toggleVisibility: true,
+                              prefixIcon: const Icon(Icons.lock),
+                              width: 400,
+                              height: 60,
+                              borderRadius: 15.0,
+                              hintTextStyle: const TextStyle(
+                                color: Colors.grey,
+                                fontSize: 16,
+                              ),
+                              textStyle: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 18,
+                              ),
+                              enabledBorderSide: const BorderSide(
+                                color: Color(0xFFB5CEE3),
+                                width: 0.5,
+                              ),
+                              focusedBorderSide: const BorderSide(
+                                color: Color(0xFF4B97D5),
+                                width: 1.5,
+                              ),
+                              fillColor: Colors.white,
+                            ),
+                            const SizedBox(height: 10),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildRequirement('Mínimo 8 caracteres', hasMinLength),
+                                _buildRequirement('Al menos 1 mayúscula', hasUppercase),
+                                _buildRequirement('Al menos 1 número', hasNumber),
+                              ],
+                            ),
+                            const SizedBox(height: 20),
+                            MyButton(
+                              onTap: isLoading ? null : updatePassword,
+                              buttonText: 'Actualizar Contraseña',
+                              width: 300,
+                              height: 50.0,
+                              borderRadius: 20.0,
+                              color: const Color(0xFF167BCE),
+                              textColor: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ],
+                        ),
                     ],
                   ),
                 ),
+    );
+  }
+
+  Widget _buildRequirement(String text, bool isMet) {
+    return Row(
+      children: [
+        Icon(
+          isMet ? Icons.check_circle : Icons.radio_button_unchecked,
+          color: isMet ? Colors.green : Colors.grey,
+        ),
+        const SizedBox(width: 8),
+        Text(
+          text,
+          style: TextStyle(
+            color: isMet ? Colors.green : Colors.grey,
+            fontSize: 16,
+          ),
+        ),
+      ],
     );
   }
 }
