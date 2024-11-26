@@ -41,19 +41,19 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'OPTIME',
       debugShowCheckedModeBanner: false,
-      initialRoute: '/',
+      initialRoute: '/Login',
       routes: {
         '/Login': (context) => const LoginScreen(),
         '/Create-contact': (context) => const CreateContactScreen(),
         '/Validate-code': (context) => const ValidateCodeScreen(),
         '/Register-user': (context) => const RegisterUserScreen(),
-        '/': (context) => const HomeScreen(),
+        '/Home': (context) => const HomeScreen(),
         '/Timer': (context) => const TimerScreen(),
         '/Statistics': (context) => StatisticsScreen(),
         '/Settings': (context) => const SettingsScreen(),
         '/Schedule': (context) => const ScheduleScreen(),
         '/Forum': (context) => const ForumScreen(),
-        '/chatbot': (context) => const ChatbotPage(),
+        '/Chatbot': (context) => const ChatbotPage(),
         '/Calendar': (context) => const CalendarScreen(),
       },
     );

@@ -17,7 +17,6 @@ class _ValidateCodeScreenState extends State<ValidateCodeScreen> {
   void validateCode() async {
     setState(() => isLoading = true);
 
-    // Simula una validación exitosa del código
     await Future.delayed(const Duration(seconds: 1));
     setState(() => isLoading = false);
 
