@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import '../components/my_button.dart';
-import '../components/my_textfield.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../services/contact_validate.dart';
 import '../utils/helpers.dart';
+import '../components/my_textfield.dart';
+import '../components/my_button.dart';
 
 class ValidateCodeScreen extends StatefulWidget {
   const ValidateCodeScreen({super.key});
@@ -13,17 +15,48 @@ class ValidateCodeScreen extends StatefulWidget {
 class _ValidateCodeScreenState extends State<ValidateCodeScreen> {
   final codeController = TextEditingController();
   bool isLoading = false;
+  String? contactId;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadContactId();
+  }
+
+  Future<void> _loadContactId() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      contactId = prefs.getString('contact_id');
+    });
+  }
 
   void validateCode() async {
+    if (codeController.text.isEmpty) {
+      Helpers.showErrorDialog(context, 'Por favor, ingresa el código.');
+      return;
+    }
+
+    if (contactId == null) {
+      Helpers.showErrorDialog(context, 'Error: Contacto no encontrado.');
+      return;
+    }
+
     setState(() => isLoading = true);
 
-    await Future.delayed(const Duration(seconds: 1));
+    final response = await ContactValidateService.validateContact(
+      contactId!,
+      codeController.text.trim(),
+    );
+
     setState(() => isLoading = false);
 
-    if (codeController.text == '123456') {
-      _showSuccessDialog('Código válido', 'El código fue verificado correctamente.', '/register-user');
+    if (response != null && response['error'] == null) {
+      _showSuccessDialog('Código válido', 'El código fue verificado correctamente.', '/Register-user');
     } else {
-      Helpers.showErrorDialog(context, 'Código inválido. Inténtalo de nuevo.');
+      Helpers.showErrorDialog(
+        context,
+        response?['message'] ?? 'Error al validar el código. Inténtalo de nuevo.',
+      );
     }
   }
 

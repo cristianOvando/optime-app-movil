@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/contact_service.dart';
 import '../utils/helpers.dart';
 import '../components/my_textfield.dart';
@@ -30,7 +31,7 @@ class _CreateContactScreenState extends State<CreateContactScreen> {
       return;
     }
 
-    if (!RegExp(r'^[\w\.\-]+@[a-zA-Z0-9\-]+\.upchiapas\.edu\.mx$')
+    if (!RegExp(r'^[\w\.\-]+@([\w\-]+\.)?upchiapas\.edu\.mx$')
         .hasMatch(emailController.text.trim())) {
       Helpers.showErrorDialog(
         context,
@@ -50,19 +51,34 @@ class _CreateContactScreenState extends State<CreateContactScreen> {
 
     setState(() => isLoading = false);
 
-    if (result != null && result.containsKey('message')) {
-      Helpers.showSuccessDialog(
-        context,
-        'Contacto creado',
-        'Se envió un código a tu correo electrónico.',
-        '/validate-code',
-      );
+    if (result != null) {
+      print('Resultado completo: $result');
+
+      if (result.containsKey('error')) {
+        Helpers.showErrorDialog(
+          context,
+          result['message'] ?? 'Error desconocido',
+        );
+      } else if (result.containsKey('contact_id')) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('contact_id', result['contact_id'].toString());
+
+        Helpers.showSuccessDialog(
+          context,
+          'Contacto creado',
+          result['message'] ?? 'El contacto fue creado exitosamente.',
+          '/Validate-code',
+        );
+      } else {
+        Helpers.showErrorDialog(
+          context,
+          'Respuesta inesperada del servidor.',
+        );
+      }
     } else {
       Helpers.showErrorDialog(
         context,
-        result != null && result.containsKey('message')
-            ? result['message']
-            : 'Error desconocido: ${result?['error'] ?? 'Sin detalles del error'}',
+        'No se pudo conectar con el servidor. Por favor, inténtalo más tarde.',
       );
     }
   }
