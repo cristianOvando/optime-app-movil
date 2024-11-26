@@ -113,6 +113,28 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: Color(0xFF167BCE),
+          ),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+        centerTitle: true,
+        title: const Text(
+          'Registro de usuario',
+          style: TextStyle(
+            color: Color(0xFF167BCE),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20.0),
@@ -120,25 +142,68 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const Text(
-                'Registro de Usuario',
+                '¡Ya casi eres parte de OPTIME!',
                 style: TextStyle(
-                  fontSize: 24,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Color.fromARGB(255, 22, 123, 206),
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 50),
               MyTextField(
                 controller: usernameController,
                 hintText: 'Nombre de usuario',
                 obscureText: false,
+                prefixIcon: const Icon(Icons.person),
+                width: 400,
+                height: 60,
+                borderRadius: 15.0,
+                hintTextStyle: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 16,
+                ),
+                textStyle: TextStyle(
+                  color: Colors.black,
+                  fontSize: 18,
+                ),
+                enabledBorderSide: BorderSide(
+                  color: const Color.fromARGB(255, 181, 206, 227),
+                  width: 0.5,
+                ),
+                focusedBorderSide: BorderSide(
+                  color: const Color.fromARGB(255, 75, 151, 213),
+                  width: 1.5,
+                ),
+                fillColor: Colors.white,
               ),
               const SizedBox(height: 20),
               MyTextField(
                 controller: passwordController,
                 hintText: 'Contraseña',
                 obscureText: true,
+                toggleVisibility: true,
+                prefixIcon: const Icon(Icons.lock),
+                width: 400,
+                height: 60,
+                borderRadius: 15.0,
+                hintTextStyle: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 16,
+                ),
+                textStyle: TextStyle(
+                  color: Colors.black,
+                  fontSize: 18,
+                ),
+                enabledBorderSide: BorderSide(
+                  color: const Color.fromARGB(255, 181, 206, 227),
+                  width: 0.5,
+                ),
+                focusedBorderSide: BorderSide(
+                  color: const Color.fromARGB(255, 75, 151, 213),
+                  width: 1.5,
+                ),
+                fillColor: Colors.white,
               ),
               const SizedBox(height: 20),
               isLoading
@@ -146,9 +211,17 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
                   : MyButton(
                       onTap: registerUser,
                       buttonText: 'Registrar',
-                      width: double.infinity,
+                      width: 300,
                       height: 50.0,
-                      borderRadius: 12.0,
+                      borderRadius: 20.0,
+                      color: Color(0xFF167BCE),
+                      textColor: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      borderSide: BorderSide(
+                        color: Colors.black,
+                        width: 0.5,
+                      ),
                     ),
             ],
           ),

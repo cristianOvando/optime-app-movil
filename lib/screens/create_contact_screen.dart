@@ -26,7 +26,7 @@ class _CreateContactScreenState extends State<CreateContactScreen> {
         phoneController.text.isEmpty) {
       Helpers.showErrorDialog(
         context,
-        'Todos los campos son obligatorios.',
+        'Favor de llenar todos los campos',
       );
       return;
     }
@@ -35,7 +35,7 @@ class _CreateContactScreenState extends State<CreateContactScreen> {
         .hasMatch(emailController.text.trim())) {
       Helpers.showErrorDialog(
         context,
-        'El correo debe ser válido y terminar con @upchiapas.edu.mx.',
+        'Solo se permiten correo con terminación @upchiapas.edu.mx.',
       );
       return;
     }
@@ -86,55 +86,159 @@ class _CreateContactScreenState extends State<CreateContactScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: Color(0xFF167BCE),
+          ),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+        centerTitle: true,
+        title: const Text(
+          'Crear Contacto',
+          style: TextStyle(
+            color: Color(0xFF167BCE),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Text(
-                'Crear Contacto',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blue,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 20),
               MyTextField(
                 controller: emailController,
                 hintText: 'Correo Electrónico',
                 obscureText: false,
+                prefixIcon: const Icon(Icons.email),
+                width: 400,
+                height: 60,
+                borderRadius: 15.0,
+                hintTextStyle: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 16,
+                ),
+                textStyle: TextStyle(
+                  color: Colors.black,
+                  fontSize: 18,
+                ),
+                enabledBorderSide: BorderSide(
+                  color: const Color.fromARGB(255, 181, 206, 227),
+                  width: 0.5,
+                ),
+                focusedBorderSide: BorderSide(
+                  color: const Color.fromARGB(255, 75, 151, 213),
+                  width: 1.5,
+                ),
+                fillColor: Colors.white,
               ),
               const SizedBox(height: 20),
               MyTextField(
                 controller: nameController,
                 hintText: 'Nombre',
                 obscureText: false,
+                prefixIcon: const Icon(Icons.person),
+                width: 400,
+                height: 60,
+                borderRadius: 15.0,
+                hintTextStyle: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 16,
+                ),
+                textStyle: TextStyle(
+                  color: Colors.black,
+                  fontSize: 18,
+                ),
+                enabledBorderSide: BorderSide(
+                  color: const Color.fromARGB(255, 181, 206, 227),
+                  width: 0.5,
+                ),
+                focusedBorderSide: BorderSide(
+                  color: const Color.fromARGB(255, 75, 151, 213),
+                  width: 1.5,
+                ),
+                fillColor: Colors.white,
               ),
               const SizedBox(height: 20),
               MyTextField(
                 controller: lastNameController,
                 hintText: 'Apellido',
                 obscureText: false,
+                prefixIcon: const Icon(Icons.person),
+                width: 400,
+                height: 60,
+                borderRadius: 15.0,
+                hintTextStyle: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 16,
+                ),
+                textStyle: TextStyle(
+                  color: Colors.black,
+                  fontSize: 18,
+                ),
+                enabledBorderSide: BorderSide(
+                  color: const Color.fromARGB(255, 181, 206, 227),
+                  width: 0.5,
+                ),
+                focusedBorderSide: BorderSide(
+                  color: const Color.fromARGB(255, 75, 151, 213),
+                  width: 1.5,
+                ),
+                fillColor: Colors.white,
               ),
               const SizedBox(height: 20),
               MyTextField(
                 controller: phoneController,
                 hintText: 'Teléfono',
                 obscureText: false,
+                prefixIcon: const Icon(Icons.phone),
+                width: 400,
+                height: 60,
+                borderRadius: 15.0,
+                hintTextStyle: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 16,
+                ),
+                textStyle: TextStyle(
+                  color: Colors.black,
+                  fontSize: 18,
+                ),
+                enabledBorderSide: BorderSide(
+                  color: const Color.fromARGB(255, 181, 206, 227),
+                  width: 0.5,
+                ),
+                focusedBorderSide: BorderSide(
+                  color: const Color.fromARGB(255, 75, 151, 213),
+                  width: 1.5,
+                ),
+                fillColor: Colors.white,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 60),
               isLoading
                   ? const CircularProgressIndicator()
                   : MyButton(
                       onTap: createContact,
                       buttonText: 'Siguiente',
-                      width: double.infinity,
-                      height: 50,
-                      borderRadius: 12.0,
-                    ),
+                      width: 300,
+                      height: 50.0,
+                      borderRadius: 20.0,
+                      color: Color(0xFF167BCE),
+                      textColor: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      borderSide: BorderSide(
+                        color: Colors.black,
+                        width: 0.5,
+                      ),
+                  ),
             ],
           ),
         ),
