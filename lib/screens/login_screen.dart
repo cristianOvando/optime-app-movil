@@ -15,28 +15,41 @@ class _LoginScreenState extends State<LoginScreen> {
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
   bool isLoading = false;
+  bool showForgotPassword = false; 
 
   void signIn() async {
-    setState(() => isLoading = true);
-
-    final result = await AuthService.login(
-      usernameController.text,
-      passwordController.text,
-    );
-
-    setState(() => isLoading = false);
-
-    if (result != null && result['success'] == true) {
-      Navigator.pushNamed(context, '/home');
-    } else {
-      Helpers.showErrorDialog(
-        context,
-        result != null && result.containsKey('message')
-            ? result['message']
-            : 'Error desconocido: ${result?['error'] ?? 'Sin detalles del error'}',
-      );
-    }
+  if (usernameController.text.isEmpty || passwordController.text.isEmpty) {
+    Helpers.showErrorDialog(context, 'Por favor, llena todos los campos.');
+    return;
   }
+
+  setState(() => isLoading = true);
+
+  final result = await AuthService.login(
+    usernameController.text,
+    passwordController.text,
+  );
+
+  setState(() => isLoading = false);
+
+  if (result != null && result['access_token'] != null) {
+    print('Inicio de sesión exitoso: $result');
+    Helpers.showSuccessDialog(
+      context,
+      'Éxito',
+      'Inicio de sesión exitoso.',
+      '/Home',
+    );
+  } else {
+    print('Error en inicio de sesión: $result');
+    Helpers.showErrorDialog(
+      context,
+      result != null && result.containsKey('message') && result['message'] != null
+          ? result['message']
+          : 'Error desconocido: ${result?['error'] ?? 'Sin detalles del error'}',
+    );
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -50,13 +63,15 @@ class _LoginScreenState extends State<LoginScreen> {
               const Text(
                 'OPTIME',
                 style: TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 36, 
+                  fontWeight: FontWeight.w900, 
                   color: Color.fromARGB(255, 22, 123, 206),
+                  fontFamily: 'Roboto', 
+                  letterSpacing: 3.0, 
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 5),
               const Text(
                 'Bienvenido',
                 style: TextStyle(
@@ -65,46 +80,102 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 80),
               MyTextField(
                 controller: usernameController,
-                hintText: 'Correo electronico',
+                hintText: 'Username',
                 obscureText: false,
+                prefixIcon: const Icon(Icons.person),
+                width: 400,
+                height: 60,
+                borderRadius: 15.0,
+                hintTextStyle: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 16,
+                ),
+                textStyle: TextStyle(
+                  color: Colors.black,
+                  fontSize: 18,
+                ),
+                enabledBorderSide: BorderSide(
+                  color: const Color.fromARGB(255, 181, 206, 227),
+                  width: 0.5,
+                ),
+                focusedBorderSide: BorderSide(
+                  color: const Color.fromARGB(255, 75, 151, 213),
+                  width: 1.5,
+                ),
+                fillColor: Colors.white,
               ),
               const SizedBox(height: 20),
               MyTextField(
-                controller: passwordController,
-                hintText: 'Contraseña',
-                obscureText: true,
-              ),
-              const SizedBox(height: 10),
+                  controller: passwordController,
+                  hintText: 'Contraseña',
+                  obscureText: true,
+                  toggleVisibility: true,
+                  prefixIcon: const Icon(Icons.lock),
+                  width: 400,
+                  height: 60,
+                  borderRadius: 15.0,
+                  hintTextStyle: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 16,
+                  ),
+                  textStyle: TextStyle(
+                    color: Colors.black,
+                    fontSize: 18,
+                  ),
+                  enabledBorderSide: BorderSide(
+                    color: const Color.fromARGB(255, 181, 206, 227),
+                    width: 0.5,
+                  ),
+                  focusedBorderSide: BorderSide(
+                    color: const Color.fromARGB(255, 75, 151, 213),
+                    width: 1.5,
+                  ),
+                  fillColor: Colors.white,
+                ),
+              const SizedBox(height: 20),
               Align(
                 alignment: Alignment.centerRight,
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.pushNamed(context, '/forgot-password'); 
-                  },
-                  child: const Text(
-                    '¿Olvidaste tu contraseña?',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.blue,
-                      decoration: TextDecoration.underline,
-                    ),
-                  ),
-                ),
+                child: showForgotPassword
+                    ? Padding(
+                        padding: const EdgeInsets.only(right: 30.0),
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.pushNamed(context, '/Forgot-password');
+                          },
+                          child: const Text(
+                            '¿Olvidaste tu contraseña?',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.blue,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        ),
+                      )
+                    : const SizedBox.shrink(), 
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 50),
               isLoading
                   ? const CircularProgressIndicator()
                   : MyButton(
-                      onTap: signIn,
-                      buttonText: 'Iniciar sesión',
-                      width: double.infinity,
+                      onTap: isLoading ? null : signIn, 
+                      buttonText: isLoading ? 'Cargando...' : 'Iniciar sesión',
+                      width: 300,
                       height: 50.0,
-                      borderRadius: 12.0,
-                    ),
-              const SizedBox(height: 20),
+                      borderRadius: 20.0,
+                      color: Colors.blue,
+                      textColor: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      borderSide: BorderSide(
+                        color: Colors.black,
+                        width: 0.5,
+                      ),
+                  ),
+              const SizedBox(height: 60),
               Row(
                 children: const [
                   Expanded(child: Divider(color: Colors.grey)),
@@ -115,10 +186,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   Expanded(child: Divider(color: Colors.grey)),
                 ],
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 30),
               GestureDetector(
                 onTap: () {
-                  // Agrega aquí la lógica para iniciar sesión con Google
+                
                 },
                 child: Container(
                   padding: const EdgeInsets.all(12.0),
@@ -133,7 +204,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 30),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -143,10 +214,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      Navigator.pushNamed(context, '/create-contact');
+                      Navigator.pushNamed(context, '/Create-contact');
                     },
                     child: const Text(
-                      ' Registro',
+                      ' Registrate',
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.blue,

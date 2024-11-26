@@ -1,13 +1,23 @@
 import 'package:flutter/material.dart';
 
-class MyTextField extends StatelessWidget {
+class MyTextField extends StatefulWidget {
   final TextEditingController controller;
   final String hintText;
   final bool obscureText;
   final Function(String)? onChanged;
-  final double? width; 
-  final double? height; 
-  final double borderRadius; 
+  final double? width;
+  final double? height;
+  final double borderRadius;
+  final Widget? prefixIcon;
+  final Widget? suffixIcon;
+  final bool toggleVisibility; 
+  final String? Function(String?)? validator;
+  final TextStyle? hintTextStyle;
+  final TextStyle? textStyle;
+  final BorderSide? enabledBorderSide;
+  final BorderSide? focusedBorderSide;
+  final Color? fillColor;
+  final EdgeInsetsGeometry? contentPadding;
 
   const MyTextField({
     super.key,
@@ -15,34 +25,77 @@ class MyTextField extends StatelessWidget {
     required this.hintText,
     required this.obscureText,
     this.onChanged,
-    this.width, 
-    this.height, 
-    this.borderRadius = 10.0, 
+    this.width,
+    this.height,
+    this.borderRadius = 10.0,
+    this.prefixIcon,
+    this.suffixIcon,
+    this.toggleVisibility = false,
+    this.validator,
+    this.hintTextStyle,
+    this.textStyle,
+    this.enabledBorderSide,
+    this.focusedBorderSide,
+    this.fillColor = const Color.fromARGB(255, 248, 248, 248),
+    this.contentPadding = const EdgeInsets.symmetric(horizontal: 25.0),
   });
+
+  @override
+  State<MyTextField> createState() => _MyTextFieldState();
+}
+
+class _MyTextFieldState extends State<MyTextField> {
+  late bool isObscured;
+
+  @override
+  void initState() {
+    super.initState();
+    isObscured = widget.obscureText;
+  }
+
+  void togglePasswordVisibility() {
+    setState(() {
+      isObscured = !isObscured;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: width, 
-      height: height, 
-      padding: const EdgeInsets.symmetric(horizontal: 25.0),
+      width: widget.width,
+      height: widget.height,
+      padding: widget.contentPadding,
       child: TextField(
-        controller: controller,
-        obscureText: obscureText,
-        onChanged: onChanged,
+        controller: widget.controller,
+        obscureText: isObscured,
+        onChanged: widget.onChanged,
+        style: widget.textStyle,
         decoration: InputDecoration(
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(borderRadius), 
-            borderSide: const BorderSide(color: Colors.black),
+            borderRadius: BorderRadius.circular(widget.borderRadius),
+            borderSide: widget.enabledBorderSide ??
+                const BorderSide(color: Colors.black),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(borderRadius), 
-            borderSide: const BorderSide(color: Colors.black),
+            borderRadius: BorderRadius.circular(widget.borderRadius),
+            borderSide: widget.focusedBorderSide ??
+                const BorderSide(color: Colors.blue),
           ),
-          fillColor: const Color.fromARGB(255, 248, 248, 248),
+          fillColor: widget.fillColor,
           filled: true,
-          hintText: hintText,
-          hintStyle: const TextStyle(color: Color.fromARGB(255, 58, 58, 58)),
+          hintText: widget.hintText,
+          hintStyle: widget.hintTextStyle ??
+              const TextStyle(color: Color.fromARGB(255, 58, 58, 58)),
+          prefixIcon: widget.prefixIcon,
+          suffixIcon: widget.toggleVisibility
+              ? IconButton(
+                  icon: Icon(
+                    isObscured ? Icons.visibility_off : Icons.visibility,
+                    color: Colors.grey,
+                  ),
+                  onPressed: togglePasswordVisibility,
+                )
+              : widget.suffixIcon,
         ),
       ),
     );
