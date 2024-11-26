@@ -52,7 +52,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() => isLoading = true);
     try {
       final headers = await AuthService().getAuthHeader();
-      final url = Uri.parse('${Constants.baseUrl}$userId');
+      final url = Uri.parse('${Constants.baseUrl}/users/$userId');
       final response = await http.get(url, headers: headers);
 
       if (response.statusCode == 200) {
@@ -85,7 +85,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() => isLoading = true);
     try {
       final headers = await AuthService().getAuthHeader();
-      final url = Uri.parse('${Constants.baseUrl}$userId');
+      final url = Uri.parse('${Constants.baseUrl}/users/$userId');
       final response = await http.put(
         url,
         headers: headers,
@@ -124,7 +124,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() => isLoading = true);
     try {
       final headers = await AuthService().getAuthHeader();
-      final url = Uri.parse('${Constants.baseUrl}$userId');
+      final url = Uri.parse('${Constants.baseUrl}/users/$userId');
       final response = await http.put(
         url,
         headers: headers,

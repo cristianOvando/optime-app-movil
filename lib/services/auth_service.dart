@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AuthService {
   static Future<Map<String, dynamic>?> login(String username, String password) async {
   try {
-    final url = Uri.parse('${Constants.baseUrl}login');
+    final url = Uri.parse('${Constants.baseUrl}/users/login');
     print('URL: $url');
     print('Enviando datos: username=$username, password=<oculto por seguridad>');
 
@@ -87,7 +87,7 @@ class AuthService {
         throw Exception('Token no disponible. Inicia sesión nuevamente.');
       }
 
-      final url = Uri.parse('${Constants.baseUrl}users/$userId');
+      final url = Uri.parse('${Constants.baseUrl}/users/$userId');
       print('URL para obtener usuario: $url');
 
       final response = await http.get(
@@ -124,7 +124,7 @@ class AuthService {
         throw Exception('Token no disponible. Inicia sesión nuevamente.');
       }
 
-      final url = Uri.parse('${Constants.baseUrl}users/$userId');
+      final url = Uri.parse('${Constants.baseUrl}/users/$userId');
       print('URL para actualizar contraseña: $url');
 
       final response = await http.put(
