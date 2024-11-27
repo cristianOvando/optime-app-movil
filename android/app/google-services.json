@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "265417761210",
+    "project_id": "optime-9e59b",
+    "storage_bucket": "optime-9e59b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:265417761210:android:1803267dfceb355787bd83",
+        "android_client_info": {
+          "package_name": "com.example.optime"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "265417761210-momuvrgphmeiqo57mslq21633f4he5bp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.optime",
+            "certificate_hash": "84f6f31bcf6b51bbefd18ac9361e913fdea2cdaa"
+          }
+        },
+        {
+          "client_id": "265417761210-6pk2b8irir78pb9a4t2ilm5p45g71msm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyALr1n7doCGskM1Hw8IX1wq_3P9gt_f-Cc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "265417761210-6pk2b8irir78pb9a4t2ilm5p45g71msm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
