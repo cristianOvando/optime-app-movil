@@ -18,7 +18,30 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   @override
   void initState() {
     super.initState();
-    _tooltipBehavior = TooltipBehavior(enable: true, header: '');
+    _tooltipBehavior = TooltipBehavior(
+      enable: true,
+      builder: (dynamic data, dynamic point, dynamic series, int pointIndex, int seriesIndex) {
+        StudyData studyPoint = data as StudyData;
+        String formattedDate = DateFormat('MMM dd, yyyy').format(studyPoint.date);
+        return Container(
+          padding: const EdgeInsets.all(8.0),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(5.0),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.2),
+                blurRadius: 4.0,
+              )
+            ],
+          ),
+          child: Text(
+            'Fecha: $formattedDate\nDuración: ${formatHours(studyPoint.hours)}',
+            style: const TextStyle(fontSize: 12, color: Colors.black),
+          ),
+        );
+      },
+    );
     fetchStudyData();
   }
 
@@ -59,10 +82,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         throw Exception("Error al cargar los datos");
       }
     } catch (e) {
-      print("Error al obtener los datos: $e");
       setState(() {
         isLoading = false;
       });
+      showSnackBar('Error de conectividad. No se pudo cargar los datos.');
     }
   }
 
@@ -72,14 +95,39 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     return '$hours hora${hours == 1 ? '' : 's'} y $remainingMinutes minuto${remainingMinutes == 1 ? '' : 's'}';
   }
 
+  String formatHours(double hours) {
+    int h = hours.floor();
+    int m = ((hours - h) * 60).round();
+    return '$h h $m min';
+  }
+
+  void showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          textAlign: TextAlign.center,
+          style: const TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    double maxHours = studyData.isEmpty ? 0 : studyData.map((e) => e.hours).reduce((a, b) => a > b ? a : b);
+    double minHours = studyData.isEmpty ? 0 : studyData.map((e) => e.hours).reduce((a, b) => a < b ? a : b);
+    double maxYAxis = maxHours + 2;
+
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(
+          icon: const Icon(
             Icons.arrow_back_ios_new,
             color: Color(0xFF167BCE),
           ),
@@ -87,17 +135,17 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             Navigator.of(context).pop();
           },
         ),
-        centerTitle: true, 
+        centerTitle: true,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min, 
+          mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               Icons.bar_chart_rounded,
               color: Color(0xFF167BCE),
             ),
-            SizedBox(width: 8.0),
-            Text(
+            const SizedBox(width: 8.0),
+            const Text(
               'Estadísticas de estudio',
               style: TextStyle(
                 color: Color(0xFF167BCE),
@@ -111,93 +159,42 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-              child: Container(
-                color: Color.fromARGB(255, 255, 255, 255), 
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    SizedBox(
-                      height: 670, 
-                      child: SfCartesianChart(
-                        zoomPanBehavior: ZoomPanBehavior(
-                          enablePinching: true,
-                          enablePanning: true,
-                        ),
-                        tooltipBehavior: _tooltipBehavior,
-                        title: ChartTitle(
-                          text: 'Tiempo Estudiado en Horas\n(Últimos 30 Días)',
-                          alignment: ChartAlignment.center,
-                          textStyle: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Color.fromARGB(255, 28, 28, 28),
-                          ),
-                        ),
-                        
-                        primaryXAxis: DateTimeAxis(
-                          intervalType: DateTimeIntervalType.days,
-                          dateFormat: DateFormat('MMM dd'),
-                          majorGridLines: const MajorGridLines(width: 0),
-                          labelStyle: TextStyle(color: Color.fromARGB(255, 33, 33, 33)),
-                        ),
-                        primaryYAxis: NumericAxis(
-                          title: AxisTitle(
-                            text: 'Horas Estudiadas',
-                            textStyle: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Color.fromARGB(255, 35, 35, 35),
-                            ),
-                          ),
-                          labelFormat: '{value}h',
-                          minimum: 0,
-                          interval: 0.5,
-                          labelStyle: TextStyle(color: Color.fromARGB(255, 41, 41, 41)),
-                        ),
-                        series: <ChartSeries>[
-                          LineSeries<StudyData, DateTime>(
-                            dataSource: studyData,
-                            xValueMapper: (StudyData data, _) => data.date,
-                            yValueMapper: (StudyData data, _) => data.hours,
-                            color: Color.fromARGB(255, 75, 160, 213),
-                            dataLabelSettings: DataLabelSettings(
-                              isVisible: false,
-                            ),
-                            markerSettings: MarkerSettings(
-                              isVisible: true,
-                              shape: DataMarkerType.circle,
-                              color: Color(0xFFB5CEE3),
-                              borderWidth: 2,
-                              borderColor: Color.fromARGB(255, 50, 112, 163),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16.0),
-                    Container(
+              child: Column(
+                children: [
+                  const SizedBox(height: 70.0),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Container(
                       padding: const EdgeInsets.all(20.0),
                       decoration: BoxDecoration(
-                        color: Color.fromARGB(255, 255, 255, 255),
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(8.0),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.2),
+                            spreadRadius: 2,
+                            blurRadius: 5,
+                            offset: Offset(0, 3),
+                          ),
+                        ],
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(
-                            'Predicción estimada para mañana:',
-                            style: const TextStyle(
-                              fontSize: 14,
+                          const Text(
+                            'Predicción para mañana:',
+                            style: TextStyle(
+                              fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Color.fromARGB(255, 35, 35, 35),
+                              color: Color.fromARGB(255, 29, 29, 29),
                             ),
                             textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: 8.0), 
+                          const SizedBox(height: 8.0),
                           Text(
                             formatPrediction(nextDayPrediction),
                             style: const TextStyle(
-                              fontSize: 16,
+                              fontSize: 18,
                               fontWeight: FontWeight.bold,
                               color: Color(0xFF167BCE),
                             ),
@@ -206,8 +203,68 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                         ],
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 40.0),
+                  SfCartesianChart(
+                    zoomPanBehavior: ZoomPanBehavior(
+                      enablePinching: true,
+                      enablePanning: true,
+                    ),
+                    tooltipBehavior: _tooltipBehavior,
+                    primaryXAxis: DateTimeAxis(
+                      intervalType: DateTimeIntervalType.days,
+                      dateFormat: DateFormat('MMM dd'),
+                      majorGridLines: const MajorGridLines(width: 0),
+                      labelStyle: const TextStyle(color: Color(0xFF444444)),
+                    ),
+                    primaryYAxis: NumericAxis(
+                      labelFormat: '{value}h',
+                      minimum: 0,
+                      maximum: maxYAxis,
+                      interval: 1.0,
+                      labelStyle: const TextStyle(color: Color(0xFF444444)),
+                    ),
+                    series: <ChartSeries>[
+                      LineSeries<StudyData, DateTime>(
+                        dataSource: studyData,
+                        xValueMapper: (StudyData data, _) => data.date,
+                        yValueMapper: (StudyData data, _) => data.hours,
+                        pointColorMapper: (StudyData data, int index) {
+                          if (data.hours == maxHours) {
+                            return Colors.green;
+                          } else if (data.hours == minHours) {
+                            return Colors.red;
+                          }
+                          return Color(0xFF167BCE);
+                        },
+                        color: Color(0xFF167BCE),
+                        markerSettings: MarkerSettings(
+                          isVisible: true,
+                          shape: DataMarkerType.circle,
+                          color: Colors.white,
+                          borderWidth: 2,
+                          borderColor: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10.0),
+                  Container(
+                    padding: const EdgeInsets.all(12.0),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF167BCE).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: const Text(
+                      'Datos recopilados los últimos 30 días.',
+                      style: TextStyle(
+                        color: Color(0xFF167BCE),
+                        fontSize: 14,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
               ),
             ),
     );

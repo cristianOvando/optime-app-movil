@@ -24,7 +24,13 @@ dependencies:
   firebase_core: ^3.8.0
   firebase_auth: ^5.3.3
   google_sign_in: ^6.2.2
+  dart_amqp: ^0.3.1
+  stomp_dart_client: ^2.1.0
+  socket_io_client: ^3.0.2
 
+
+
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -35,6 +41,7 @@ flutter:
   assets:
     - lib/assets/images/googleicon.png
     - lib/assets/icon/optime.png
+    - lib/assets/.env
 
 flutter_icons:
   android: true
