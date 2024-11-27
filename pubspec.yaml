@@ -33,6 +33,7 @@ flutter:
   assets:
     - lib/assets/images/googleicon.png
     - lib/assets/icon/optime.png
+    - lib/assets/.env
 
 flutter_icons:
   android: true

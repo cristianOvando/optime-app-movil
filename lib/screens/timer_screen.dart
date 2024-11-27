@@ -43,7 +43,7 @@ class _TimerScreenState extends State<TimerScreen> {
       final formattedTime = formatFullTime(secondsElapsed);
 
       if (minutes <= 0) {
-        showSnackBar(context, 'No se puede guardar un tiempo de estudio de 0 minutos.');
+        showSnackBar(context, 'No se a guardado');
         return;
       }
       showDialog(
@@ -127,10 +127,10 @@ class _TimerScreenState extends State<TimerScreen> {
         showSnackBar(context, 'Datos guardados exitosamente.');
       } else {
         print("Error del servidor: ${response.body}");
-        showSnackBar(context, 'Error al guardar los datos: ${response.body}');
+        showSnackBar(context, 'Error al guardar los datos');
       }
     } catch (e) {
-      showSnackBar(context, 'Error de red. No se pudo enviar: $e');
+      showSnackBar(context, 'Error de red. No se pudo guardar: $e');
       print('Error al enviar datos: $e');
     }
   }
