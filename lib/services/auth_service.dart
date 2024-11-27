@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import '../utils/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+
 class AuthService {
   static Future<Map<String, dynamic>?> login(String username, String password) async {
   try {
@@ -189,4 +190,85 @@ class AuthService {
     return {'error': 'Exception', 'message': e.toString()};
   }
 }
+
+static Future<Map<String, dynamic>?> postMessage(
+      String subject, String username, String content, String contact) async {
+    try {
+      final url = Uri.parse('${Constants.messageUrl}/message');
+      print('URL para publicar mensaje: $url');
+
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('access_token');
+      final tokenType = prefs.getString('token_type');
+
+      if (token == null || tokenType == null) {
+        throw Exception('Token no disponible. Inicia sesión nuevamente.');
+      }
+
+      final response = await http.post(
+        url,
+        headers: {
+          'Authorization': '$tokenType $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'subject': subject,
+          'username': username,
+          'content': content,
+          'contact': contact,
+        }),
+      );
+
+      print('Estado HTTP: ${response.statusCode}');
+      print('Cuerpo de respuesta: ${response.body}');
+
+      if (response.body.isEmpty) {
+        return {'error': 'Respuesta vacía', 'message': 'El servidor no devolvió datos.'};
+      }
+
+      final responseBody = jsonDecode(response.body);
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+
+        return responseBody;
+      } else {
+        return {
+          'error': 'Error: ${response.statusCode}',
+          'message': responseBody['message'] ?? 'Error inesperado',
+        };
+      }
+    } catch (e) {
+      print('Excepción en postMessage: $e');
+      return {'error': 'Exception', 'message': e.toString()};
+    }
+  }
+
+static Future<List<Map<String, dynamic>>?> getMessages() async {
+  try {
+    print('Llamando a la API para obtener mensajes...');
+    final url = Uri.parse('${Constants.messageUrl}/messages');
+    final response = await http.get(url, headers: {'Content-Type': 'application/json'});
+
+    print('Estado HTTP: ${response.statusCode}');
+    print('Cuerpo de respuesta: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final body = jsonDecode(response.body);
+      if (body['success'] == true && body.containsKey('data')) {
+        print('Mensajes obtenidos: ${body['data']}');
+        return List<Map<String, dynamic>>.from(body['data']);
+      } else {
+        print('Formato inesperado en respuesta de la API');
+        return [];
+      }
+    } else {
+      print('Error HTTP al obtener mensajes: ${response.statusCode}');
+      return [];
+    }
+  } catch (e) {
+    print('Excepción en getMessages: $e');
+    return [];
+  }
+}
+
 }
