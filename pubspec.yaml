@@ -24,7 +24,9 @@ dependencies:
   dart_amqp: ^0.3.1
   stomp_dart_client: ^2.1.0
   socket_io_client: ^3.0.2
-
+  firebase_core: ^3.8.0
+  firebase_auth: ^5.3.3
+  google_sign_in: ^6.2.2
 
 
   

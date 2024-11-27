@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
+import '../services/auth_service_google.dart';  
 import '../services/auth_service.dart';
 import '../utils/helpers.dart';
 import '../components/my_textfield.dart';
 import '../components/my_button.dart';
+
+const List<String> SCOPES = [
+  'https://www.googleapis.com/auth/classroom.courses.readonly',
+  'https://www.googleapis.com/auth/classroom.coursework.me',
+  'https://www.googleapis.com/auth/classroom.student-submissions.me.readonly'
+];
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -16,40 +23,61 @@ class _LoginScreenState extends State<LoginScreen> {
   final passwordController = TextEditingController();
   bool isLoading = false;
   bool showForgotPassword = false; 
+  final AuthServiceGoogle _authServiceGoogle = AuthServiceGoogle(); 
 
   void signIn() async {
-  if (usernameController.text.isEmpty || passwordController.text.isEmpty) {
-    Helpers.showErrorDialog(context, 'Por favor, llena todos los campos.');
-    return;
+    if (usernameController.text.isEmpty || passwordController.text.isEmpty) {
+      Helpers.showErrorDialog(context, 'Por favor, llena todos los campos.');
+      return;
+    }
+
+    setState(() => isLoading = true);
+
+    final result = await _authServiceGoogle.login(
+      usernameController.text,
+      passwordController.text,
+    );
+
+    setState(() => isLoading = false);
+
+    if (result != null && result['access_token'] != null) {
+      print('Inicio de sesión exitoso: $result');
+      Helpers.showSuccessDialog(
+        context,
+        'Éxito',
+        'Inicio de sesión exitoso.',
+        '/Home',
+      );
+    } else {
+      print('Error en inicio de sesión: $result');
+      Helpers.showErrorDialog(
+        context,
+        result != null && result.containsKey('message') && result['message'] != null
+            ? result['message']
+            : 'Error desconocido: ${result?['error'] ?? 'Sin detalles del error'}',
+      );
+    }
   }
 
-  setState(() => isLoading = true);
+  void signInWithGoogle() async {
+    setState(() {
+      isLoading = true;
+    });
 
-  final result = await AuthService.login(
-    usernameController.text,
-    passwordController.text,
-  );
+    final user = await _authServiceGoogle.signInWithGoogle();
 
-  setState(() => isLoading = false);
+    setState(() {
+      isLoading = false;
+    });
 
-  if (result != null && result['access_token'] != null) {
-    print('Inicio de sesión exitoso: $result');
-    Helpers.showSuccessDialog(
-      context,
-      'Éxito',
-      'Inicio de sesión exitoso.',
-      '/Home',
-    );
-  } else {
-    print('Error en inicio de sesión: $result');
-    Helpers.showErrorDialog(
-      context,
-      result != null && result.containsKey('message') && result['message'] != null
-          ? result['message']
-          : 'Error desconocido: ${result?['error'] ?? 'Sin detalles del error'}',
-    );
+    if (user != null) {
+      print('Inicio de sesión con Google exitoso: ${user.displayName}');
+      
+      Navigator.pushNamed(context, '/Home');
+    } else {
+      Helpers.showErrorDialog(context, 'Hubo un error al iniciar sesión con Google.');
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -109,32 +137,54 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 20),
               MyTextField(
-                  controller: passwordController,
-                  hintText: 'Contraseña',
-                  obscureText: true,
-                  toggleVisibility: true,
-                  prefixIcon: const Icon(Icons.lock),
-                  width: 400,
-                  height: 60,
-                  borderRadius: 15.0,
-                  hintTextStyle: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 16,
-                  ),
-                  textStyle: TextStyle(
-                    color: Colors.black,
-                    fontSize: 18,
-                  ),
-                  enabledBorderSide: BorderSide(
-                    color: const Color.fromARGB(255, 181, 206, 227),
-                    width: 0.5,
-                  ),
-                  focusedBorderSide: BorderSide(
-                    color: const Color.fromARGB(255, 75, 151, 213),
-                    width: 1.5,
-                  ),
-                  fillColor: Colors.white,
+                controller: passwordController,
+                hintText: 'Contraseña',
+                obscureText: true,
+                toggleVisibility: true,
+                prefixIcon: const Icon(Icons.lock),
+                width: 400,
+                height: 60,
+                borderRadius: 15.0,
+                hintTextStyle: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 16,
                 ),
+                textStyle: TextStyle(
+                  color: Colors.black,
+                  fontSize: 18,
+                ),
+                enabledBorderSide: BorderSide(
+                  color: const Color.fromARGB(255, 181, 206, 227),
+                  width: 0.5,
+                ),
+                focusedBorderSide: BorderSide(
+                  color: const Color.fromARGB(255, 75, 151, 213),
+                  width: 1.5,
+                ),
+                fillColor: Colors.white,
+              ),
+              const SizedBox(height: 20),
+              Align(
+                alignment: Alignment.centerRight,
+                child: showForgotPassword
+                    ? Padding(
+                        padding: const EdgeInsets.only(right: 30.0),
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.pushNamed(context, '/Forgot-password');
+                          },
+                          child: const Text(
+                            '¿Olvidaste tu contraseña?',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Color(0xFF167BCE),
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        ),
+                      )
+                    : const SizedBox.shrink(), 
+              ),
               const SizedBox(height: 50),
               isLoading
                   ? const CircularProgressIndicator()
@@ -156,6 +206,35 @@ class _LoginScreenState extends State<LoginScreen> {
               
              
               const SizedBox(height: 60),
+              Row(
+                children: const [
+                  Expanded(child: Divider(color: Colors.grey)),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Text('O continuar con'),
+                  ),
+                  Expanded(child: Divider(color: Colors.grey)),
+                ],
+              ),
+              const SizedBox(height: 30),
+              GestureDetector(
+                onTap: () {
+                
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(12.0),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Image.asset(
+                    'lib/assets/images/googleicon.png', 
+                    height: 40,
+                    width: 40,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 30),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
