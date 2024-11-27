@@ -68,7 +68,7 @@ class _TimerScreenState extends State<TimerScreen> {
                 const Icon(Icons.check_circle, size: 60, color: Colors.green),
                 const SizedBox(height: 10),
                 Text(
-                  'Has estudiado $formattedTime',
+                  'Horas de estudio $formattedTime',
                   style: const TextStyle(
                     fontSize: 18,
                     color: Color.fromARGB(221, 0, 0, 0),
