@@ -17,7 +17,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
   late final List<Widget> _screens;
-  List<String> _messages = [];
   late Client client;
 
   @override
@@ -29,42 +28,9 @@ class _HomeScreenState extends State<HomeScreen> {
       const ChatbotPage(),
       const CalendarScreen(),
     ];
-    _connectToRabbitMQ();
   }
 
-  @override
-  void dispose() {
-    client.close(); 
-    super.dispose();
-  }
-
-  void _connectToRabbitMQ() {
-    final connectionSettings = ConnectionSettings(
-      host: '52.72.86.85',
-      authProvider: PlainAuthenticator('optimeroot', 'optimeroot'),
-    );
-
-    client = Client(settings: connectionSettings);
-
-    client
-        .channel()
-        .then((Channel channel) async {
-      final exchange = await channel.exchange('messages_exchange', ExchangeType.FANOUT, durable: true);
-
-      final queue = await channel.queue('', exclusive: true);
-
-      await queue.bind(exchange, '');
-
-      Consumer consumer = await queue.consume();
-      consumer.listen((AmqpMessage message) {
-        setState(() {
-          _messages.add(String.fromCharCodes(message.payload ?? []));
-        });
-      });
-    }).catchError((error) {
-      debugPrint('Error al conectar a RabbitMQ: $error');
-    });
-  }
+  
 
   void _onItemTapped(int index) {
     setState(() {
@@ -79,25 +45,13 @@ class _HomeScreenState extends State<HomeScreen> {
       body: IndexedStack(
         index: _selectedIndex,
         children: [
-          _buildRabbitMQView(),
-          ..._screens.sublist(1),
+          ..._screens.sublist(0),
         ],
       ),
       bottomNavigationBar: MyBottomNavBar(
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
       ),
-    );
-  }
-
-  Widget _buildRabbitMQView() {
-    return ListView.builder(
-      itemCount: _messages.length,
-      itemBuilder: (context, index) {
-        return ListTile(
-          title: Text(_messages[index]),
-        );
-      },
     );
   }
 }

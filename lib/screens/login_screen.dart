@@ -135,28 +135,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   fillColor: Colors.white,
                 ),
-              const SizedBox(height: 20),
-              Align(
-                alignment: Alignment.centerRight,
-                child: showForgotPassword
-                    ? Padding(
-                        padding: const EdgeInsets.only(right: 30.0),
-                        child: GestureDetector(
-                          onTap: () {
-                            Navigator.pushNamed(context, '/Forgot-password');
-                          },
-                          child: const Text(
-                            '¿Olvidaste tu contraseña?',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Color(0xFF167BCE),
-                              decoration: TextDecoration.underline,
-                            ),
-                          ),
-                        ),
-                      )
-                    : const SizedBox.shrink(), 
-              ),
               const SizedBox(height: 50),
               isLoading
                   ? const CircularProgressIndicator()
@@ -175,36 +153,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         width: 0.5,
                       ),
                   ),
+              
+             
               const SizedBox(height: 60),
-              Row(
-                children: const [
-                  Expanded(child: Divider(color: Colors.grey)),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Text('O continuar con'),
-                  ),
-                  Expanded(child: Divider(color: Colors.grey)),
-                ],
-              ),
-              const SizedBox(height: 30),
-              GestureDetector(
-                onTap: () {
-                
-                },
-                child: Container(
-                  padding: const EdgeInsets.all(12.0),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Image.asset(
-                    'lib/assets/images/googleicon.png', 
-                    height: 40,
-                    width: 40,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 30),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

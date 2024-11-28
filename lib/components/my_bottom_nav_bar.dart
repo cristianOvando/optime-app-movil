@@ -44,8 +44,8 @@ class MyBottomNavBar extends StatelessWidget {
              label: 'ChatBot',
           ),
           BottomNavigationBarItem(
-            icon: _buildIcon(Icons.calendar_today, 3),
-            label: 'Calendario',
+            icon: _buildIcon(Icons.calendar_month, 3),
+            label: 'Mi Horario',
           ),
         ],
         selectedItemColor: const Color.fromARGB(255, 22, 123, 206),

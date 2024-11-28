@@ -271,4 +271,44 @@ static Future<List<Map<String, dynamic>>?> getMessages() async {
   }
 }
 
+static Future<Map<String, dynamic>?> getSchedule(int scheduleId) async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('access_token');
+    final tokenType = prefs.getString('token_type');
+
+    if (token == null || tokenType == null) {
+      throw Exception('Token no disponible. Inicia sesión nuevamente.');
+    }
+
+    final url = Uri.parse('${Constants.baseUrl}/schedules/$scheduleId');
+    print('URL para obtener horario: $url');
+
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': '$tokenType $token',
+        'Content-Type': 'application/json',  
+      },
+    );
+
+    print('Estado HTTP: ${response.statusCode}');
+    print('Cuerpo de respuesta: ${response.body}');
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else if (response.statusCode == 404) {
+      return {'error': 'Horario no encontrado', 'message': 'ID no válido.'};
+    } else {
+      return {
+        'error': 'Error desconocido',
+        'message': jsonDecode(response.body)['message'] ?? 'Error inesperado',
+      };
+    }
+  } catch (e) {
+    print('Excepción en getSchedule: $e');
+    return {'error': 'Exception', 'message': e.toString()};
+  }
+}
+
 }
