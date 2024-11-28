@@ -151,42 +151,21 @@ class _CalendarScreenState extends State<CalendarScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        
-        centerTitle: true,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.calendar_month,
-              color: Color(0xFF167BCE),
-            ),
-            const SizedBox(width: 8.0),
-            const Text(
-              'Mi Horario',
-              style: TextStyle(
-                color: Color(0xFF167BCE),
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
-            ),
-          ],
-        ),
-      ),
+      
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             const SizedBox(height: 16),
             Expanded(
-              child: SingleChildScrollView(
-                // Permitir el desplazamiento en la dirección vertical
+              child: RefreshIndicator(
+                onRefresh: _loadSchedule, // Método que se ejecuta cuando se realiza el pull-to-refresh
                 child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal, // Desplazamiento horizontal
-                  child: _buildHorarioTable(),
+                  // Permitir el desplazamiento en la dirección vertical
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal, // Desplazamiento horizontal
+                    child: _buildHorarioTable(),
+                  ),
                 ),
               ),
             ),

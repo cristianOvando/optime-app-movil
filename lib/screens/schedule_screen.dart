@@ -367,27 +367,27 @@ String? _getClassAt(String dia, int hora) {
   }
 
   Widget _buildHorarioCell(String dia, int hora) {
-    final isSelected = _horarioSeleccionado[dia]!.contains(hora);
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => _toggleHorario(dia, hora),
-        child: Container(
-          margin: const EdgeInsets.all(4.0),
-          decoration: BoxDecoration(
-            color: isSelected ? Colors.blueAccent : Colors.grey[300],
-            border: Border.all(color: Colors.black),
-          ),
-          height: 40,
-          child: Center(
-            child: Text(
-              isSelected ? hora.toString() : '',
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-            ),
+  final isSelected = _horarioSeleccionado[dia]!.contains(hora);
+  return Expanded(
+    child: GestureDetector(
+      onTap: () => _toggleHorario(dia, hora),
+      child: Container(
+        margin: const EdgeInsets.all(4.0),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.blueAccent : Colors.grey[300],
+          border: Border.all(color: Colors.black),
+        ),
+        height: 40,
+        child: Center(
+          child: Text(
+            isSelected ? hora.toString() : '',
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildTableCell(String text) {
     return Expanded(
@@ -420,7 +420,7 @@ String? _getClassAt(String dia, int hora) {
           style: const TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.white,
-            fontSize: 9
+            fontSize: 8
           ),
         ),
       ),
