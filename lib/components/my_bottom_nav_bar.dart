@@ -18,18 +18,18 @@ class MyBottomNavBar extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color.fromARGB(255, 255, 255, 255),
         borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(20), 
+          topLeft: Radius.circular(20),
           topRight: Radius.circular(20),
         ),
         border: Border.all(
-          color: const Color.fromARGB(255, 210, 210, 210), 
-          width: 1, 
+          color: const Color.fromARGB(255, 210, 210, 210),
+          width: 1,
         ),
       ),
       child: BottomNavigationBar(
         currentIndex: selectedIndex,
         onTap: onItemTapped,
-        backgroundColor: Colors.transparent, 
+        backgroundColor: Colors.transparent,
         items: [
           BottomNavigationBarItem(
             icon: _buildIcon(Icons.schedule, 0),
@@ -40,12 +40,12 @@ class MyBottomNavBar extends StatelessWidget {
             label: 'Foro',
           ),
           BottomNavigationBarItem(
-             icon: _buildIcon(FontAwesomeIcons.robot, 2), 
-             label: 'ChatBot',
+            icon: _buildIcon(FontAwesomeIcons.robot, 2),
+            label: 'ChatBot',
           ),
           BottomNavigationBarItem(
             icon: _buildIcon(Icons.calendar_month, 3),
-            label: 'Mi Horario',
+            label: 'Mi horario',
           ),
         ],
         selectedItemColor: const Color.fromARGB(255, 22, 123, 206),
@@ -53,7 +53,11 @@ class MyBottomNavBar extends StatelessWidget {
         selectedLabelStyle: const TextStyle(fontSize: 14),
         unselectedLabelStyle: const TextStyle(fontSize: 12),
         type: BottomNavigationBarType.fixed,
-        elevation: 0, 
+        elevation: 0,
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
+        iconSize: 30,  
+        landscapeLayout: BottomNavigationBarLandscapeLayout.centered,
       ),
     );
   }
@@ -64,7 +68,7 @@ class MyBottomNavBar extends StatelessWidget {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       curve: Curves.easeInOut,
-      padding: EdgeInsets.all(isSelected ? 1.0 : 0.0),
+      padding: EdgeInsets.all(isSelected ? 8.0 : 4.0),  
       child: Icon(
         icon,
         size: isSelected ? 34 : 28,

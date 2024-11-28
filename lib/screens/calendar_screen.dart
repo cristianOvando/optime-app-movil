@@ -150,28 +150,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            const SizedBox(height: 16),
-            Expanded(
-              child: RefreshIndicator(
-                onRefresh: _loadSchedule, // Método que se ejecuta cuando se realiza el pull-to-refresh
-                child: SingleChildScrollView(
-                  // Permitir el desplazamiento en la dirección vertical
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal, // Desplazamiento horizontal
-                    child: _buildHorarioTable(),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+    return const Center(
+      child: Text('Pantalla de mi horario'),
     );
   }
 }

@@ -10,88 +10,122 @@ class AuthServiceGoogle {
       'https://www.googleapis.com/auth/classroom.courses.readonly',
       'https://www.googleapis.com/auth/classroom.coursework.me',
       'https://www.googleapis.com/auth/classroom.student-submissions.me.readonly',
-      'https://www.googleapis.com/auth/calendar.readonly', 
-      'https://www.googleapis.com/auth/calendar', 
+      'https://www.googleapis.com/auth/calendar.readonly',
+      'https://www.googleapis.com/auth/calendar',
     ],
   );
 
+  // Iniciar sesión con Google
   Future<User?> signInWithGoogle() async {
     try {
+      // Iniciar sesión en Google
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) {
-        throw Exception('El usuario canceló el inicio de sesión');
+        print('El usuario canceló el inicio de sesión');
+        return null;
       }
 
+      // Obtener la autenticación de Google
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+      // Crear credenciales para Firebase
       final OAuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
+      // Autenticar en Firebase
       final UserCredential userCredential = await _auth.signInWithCredential(credential);
-      print("Usuario autenticado correctamente: ${userCredential.user?.displayName}");
+      print("Usuario autenticado: ${userCredential.user?.displayName}");
       return userCredential.user;
     } catch (e) {
-      print('Error al iniciar sesión con Google: $e');
-      if (e is FirebaseAuthException) {
-        if (e.code == 'account-exists-with-different-credential') {
-          print('La cuenta ya existe con diferentes credenciales');
-        }
-      }
+      _handleAuthError(e);
       return null;
     }
   }
 
+  // Cerrar sesión de Google y Firebase
   Future<void> signOut() async {
-    await _auth.signOut();
-    await _googleSignIn.signOut();
-    print('Usuario desconectado');
+    try {
+      await _googleSignIn.signOut();
+      await _auth.signOut();
+      print('Usuario desconectado correctamente');
+    } catch (e) {
+      print('Error al cerrar sesión: $e');
+    }
   }
 
-  Future<void> getCalendarEvents(GoogleSignInAccount googleUser) async {
+  // Obtener eventos de Google Calendar
+  Future<void> getCalendarEvents() async {
     try {
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-      final String accessToken = googleAuth.accessToken!;
+      final GoogleSignInAccount? googleUser = _googleSignIn.currentUser ?? await _googleSignIn.signIn();
+      if (googleUser == null) {
+        print('No hay usuario autenticado');
+        return;
+      }
 
-      final response = await http.get(
-        Uri.parse('https://www.googleapis.com/calendar/v3/calendars/primary/events'),
-        headers: {
-          'Authorization': 'Bearer $accessToken',
-        },
+      final accessToken = (await googleUser.authentication).accessToken!;
+      final events = await _fetchFromGoogleAPI(
+        'https://www.googleapis.com/calendar/v3/calendars/primary/events',
+        accessToken,
       );
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        print('Eventos de Google Calendar: $data');
-      } else {
-        print('Error al obtener eventos: ${response.statusCode}');
-      }
+      print('Eventos de Google Calendar: $events');
     } catch (e) {
       print('Error al obtener eventos de Calendar: $e');
     }
   }
 
-  Future<void> getClassroomCourses(GoogleSignInAccount googleUser) async {
+  // Obtener cursos de Google Classroom
+  Future<void> getClassroomCourses() async {
     try {
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-      final String accessToken = googleAuth.accessToken!;
+      final GoogleSignInAccount? googleUser = _googleSignIn.currentUser ?? await _googleSignIn.signIn();
+      if (googleUser == null) {
+        print('No hay usuario autenticado');
+        return;
+      }
 
-      final response = await http.get(
-        Uri.parse('https://classroom.googleapis.com/v1/courses'),
-        headers: {
-          'Authorization': 'Bearer $accessToken',
-        },
+      final accessToken = (await googleUser.authentication).accessToken!;
+      final courses = await _fetchFromGoogleAPI(
+        'https://classroom.googleapis.com/v1/courses',
+        accessToken,
       );
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        print('Cursos de Classroom: $data');
-        
-      } else {
-        print('Error al obtener cursos: ${response.statusCode}');
-      }
+      print('Cursos de Google Classroom: $courses');
     } catch (e) {
       print('Error al obtener cursos de Classroom: $e');
+    }
+  }
+
+  // Método genérico para hacer solicitudes HTTP a las API de Google
+  Future<dynamic> _fetchFromGoogleAPI(String url, String accessToken) async {
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {'Authorization': 'Bearer $accessToken'},
+    );
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Error ${response.statusCode}: ${response.body}');
+    }
+  }
+
+  // Manejo de errores de autenticación
+  void _handleAuthError(dynamic e) {
+    if (e is FirebaseAuthException) {
+      switch (e.code) {
+        case 'account-exists-with-different-credential':
+          print('La cuenta ya existe con diferentes credenciales');
+          break;
+        case 'invalid-credential':
+          print('Credenciales inválidas');
+          break;
+        default:
+          print('Error de autenticación desconocido: ${e.code}');
+      }
+    } else {
+      print('Error general: $e');
     }
   }
 }

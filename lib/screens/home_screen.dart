@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:dart_amqp/dart_amqp.dart';
+import 'package:optime/screens/classroom_screen.dart';
 import 'package:optime/screens/schedule_screen.dart';
+import 'package:optime/screens/forum_screen.dart';
+import 'package:optime/screens/chatbot_screen.dart';
 import '../components/my_app_bar.dart';
 import '../components/my_bottom_nav_bar.dart';
-import '../screens/calendar_screen.dart';
-import '../screens/forum_screen.dart';
-import '../screens/chatbot_screen.dart';
+import '../services/auth_service_google.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final GoogleSignInAccount googleUser; 
+
+  const HomeScreen({super.key, required this.googleUser});
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -23,10 +26,10 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _screens = [
-      const ScheduleScreen(),
-      const ForumScreen(),
-      const ChatbotPage(),
-      const CalendarScreen(),
+      ScheduleScreen(),
+      ForumScreen(),
+      ChatbotPage(),
+      
     ];
   }
 
