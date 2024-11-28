@@ -65,28 +65,19 @@ class Helpers {
               style: const TextStyle(fontSize: 16, color: Colors.black54),
             ),
           ),
-          actions: [
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: MyButton(
-                onTap: () {
-                  Navigator.pop(context);
-                  if (nextRoute != null) {
-                    Navigator.pushNamed(context, nextRoute);
-                  }
-                },
-                buttonText: 'Aceptar',
-                width: double.infinity,
-                height: 50,
-                borderRadius: 12.0,
-              ),
-            ),
-          ],
+          actions: [],
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15.0),
           ),
         );
       },
     );
+
+    Future.delayed(const Duration(seconds: 2), () {
+      Navigator.pop(context);
+      if (nextRoute != null) {
+        Navigator.pushNamed(context, nextRoute); 
+      }
+    });
   }
 }
