@@ -11,30 +11,29 @@ class ForumScreen extends StatefulWidget {
 }
 
 class _ForumScreenState extends State<ForumScreen> {
-  List<Map<String, dynamic>> messages = []; // Lista actualizada para almacenar los mensajes
+  List<Map<String, dynamic>> messages = []; 
   TextEditingController _subjectController = TextEditingController();
   TextEditingController _contentController = TextEditingController();
   late Client client;
   bool isLoading = false;
   String? username;
   String? email;
-  List<String> _rabbitMessages = []; // Lista para almacenar mensajes de RabbitMQ
+  List<String> _rabbitMessages = [];
 
   @override
   void initState() {
     super.initState();
-    _loadUserData(); // Cargar los datos del usuario
-    _connectToRabbitMQ(); // Conectar a RabbitMQ
-    _loadMessages(); // Llamar al método para cargar los mensajes desde la API
+    _loadUserData(); 
+    _connectToRabbitMQ(); 
+    _loadMessages(); 
   }
 
   @override
   void dispose() {
-    client.close(); // Cierra la conexión a RabbitMQ al salir de la vista
+    client.close(); 
     super.dispose();
   }
 
-  // Conectar a RabbitMQ
   void _connectToRabbitMQ() {
   final connectionSettings = ConnectionSettings(
     host: '52.72.86.85',
@@ -51,15 +50,12 @@ class _ForumScreenState extends State<ForumScreen> {
     Consumer consumer = await queue.consume();
     consumer.listen((AmqpMessage message) async {
       setState(() {
-        // Agregar el mensaje recibido a la lista
         _rabbitMessages.add(String.fromCharCodes(message.payload ?? []));
       });
 
-      // Recargar los mensajes desde la API después de recibir uno nuevo
       await _loadMessages();
     });
   }).catchError((error) {
-    // Solo para manejar errores de conexión sin imprimir mensajes
     debugPrint('Error al conectar a RabbitMQ: $error');
   });
 }
@@ -79,16 +75,15 @@ class _ForumScreenState extends State<ForumScreen> {
     }
   }
 
-  // Método para cargar los mensajes
   Future<void> _loadMessages() async {
     setState(() {
       isLoading = true;
     });
 
     try {
-      final fetchedMessages = await AuthService.getMessages(); // Llamamos al método getMessages
+      final fetchedMessages = await AuthService.getMessages(); 
       setState(() {
-        messages = fetchedMessages ?? []; // Actualizamos los mensajes
+        messages = fetchedMessages ?? [];
         isLoading = false;
       });
     } catch (e) {
@@ -100,7 +95,6 @@ class _ForumScreenState extends State<ForumScreen> {
   }
 
   void _showMessageForm() async {
-    // Verificar si los datos del usuario están disponibles antes de mostrar el formulario
     if (username == null || email == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Datos del usuario no disponibles.')),
@@ -108,7 +102,6 @@ class _ForumScreenState extends State<ForumScreen> {
       return;
     }
 
-    // Mostrar formulario
     showDialog(
       context: context,
       builder: (context) {
@@ -132,7 +125,6 @@ class _ForumScreenState extends State<ForumScreen> {
           actions: <Widget>[
             ElevatedButton(
               onPressed: () {
-                // Lógica para enviar el mensaje
                 postMessage(_subjectController.text, _contentController.text, email ?? '');
                 Navigator.of(context).pop();
               },
@@ -168,7 +160,7 @@ class _ForumScreenState extends State<ForumScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Mensaje publicado con éxito.')),
       );
-      _loadMessages(); // Volver a cargar los mensajes después de publicar uno
+      _loadMessages(); 
     }
   }
 

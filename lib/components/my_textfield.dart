@@ -19,8 +19,8 @@ class MyTextField extends StatefulWidget {
   final BorderSide? focusedBorderSide;
   final Color? fillColor;
   final EdgeInsetsGeometry? contentPadding;
-  final TextInputType? keyboardType; // NUEVO
-  final List<TextInputFormatter>? inputFormatters; // NUEVO
+  final TextInputType? keyboardType; 
+  final List<TextInputFormatter>? inputFormatters; 
 
   const MyTextField({
     super.key,
@@ -41,8 +41,8 @@ class MyTextField extends StatefulWidget {
     this.focusedBorderSide,
     this.fillColor = const Color.fromARGB(255, 248, 248, 248),
     this.contentPadding = const EdgeInsets.symmetric(horizontal: 25.0),
-    this.keyboardType, // NUEVO
-    this.inputFormatters, // NUEVO
+    this.keyboardType, 
+    this.inputFormatters,
   });
 
   @override
@@ -75,8 +75,8 @@ class _MyTextFieldState extends State<MyTextField> {
         obscureText: isObscured,
         onChanged: widget.onChanged,
         style: widget.textStyle,
-        keyboardType: widget.keyboardType, // Configura el tipo de teclado
-        inputFormatters: widget.inputFormatters, // Configura los inputFormatters
+        keyboardType: widget.keyboardType,
+        inputFormatters: widget.inputFormatters,
         decoration: InputDecoration(
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(widget.borderRadius),

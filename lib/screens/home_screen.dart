@@ -17,7 +17,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
   late final List<Widget> _screens;
-  List<String> _messages = []; // Lista para almacenar mensajes recibidos
+  List<String> _messages = [];
   late Client client;
 
   @override
@@ -34,7 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
-    client.close(); // Cierra la conexión a RabbitMQ al salir de la vista
+    client.close(); 
     super.dispose();
   }
 
@@ -49,16 +49,12 @@ class _HomeScreenState extends State<HomeScreen> {
     client
         .channel()
         .then((Channel channel) async {
-      // Declarar el exchange de tipo fanout
       final exchange = await channel.exchange('messages_exchange', ExchangeType.FANOUT, durable: true);
 
-      // Crear una cola exclusiva para este consumidor
       final queue = await channel.queue('', exclusive: true);
 
-      // Vincular la cola al exchange
       await queue.bind(exchange, '');
 
-      // Consumir mensajes de la cola
       Consumer consumer = await queue.consume();
       consumer.listen((AmqpMessage message) {
         setState(() {
@@ -83,7 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: IndexedStack(
         index: _selectedIndex,
         children: [
-          _buildRabbitMQView(), // Vista de RabbitMQ
+          _buildRabbitMQView(),
           ..._screens.sublist(1),
         ],
       ),

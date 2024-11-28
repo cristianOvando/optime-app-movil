@@ -114,7 +114,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         'Contraseña Actualizada',
         'Tu contraseña ha sido actualizada correctamente.',
       );
-      await fetchUserInfo(); // Refrescar datos del usuario
+      await fetchUserInfo(); 
     } else if (response.statusCode == 404) {
       Helpers.showErrorDialog(context, 'Usuario no encontrado.');
     } else {

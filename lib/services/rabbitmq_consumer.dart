@@ -26,7 +26,6 @@ class RabbitMQConsumer {
       channel = await client.channel();
       print('Conexión establecida con RabbitMQ');
 
-      // Verificar si la cola existe y si es accesible
       queue = await channel.queue('messages_queue', durable: true);
       print('Cola "messages_queue" creada o ya existe');
 
@@ -52,7 +51,7 @@ class RabbitMQConsumer {
             onMessageReceived(decodedMessage); 
           }
 
-          message.ack();  // Acknowledge the message after processing
+          message.ack();  
         } catch (e) {
           print('Error procesando mensaje: $e');
         }
@@ -62,7 +61,7 @@ class RabbitMQConsumer {
     } catch (e) {
       print('Error al inicializar RabbitMQ: $e');
       await Future.delayed(const Duration(seconds: 5));
-      _initializeConsumer();  // Intentar reconectar en caso de fallo
+      _initializeConsumer();
     }
   }
 
