@@ -167,9 +167,6 @@ class _ForumScreenState extends State<ForumScreen> {
   @override
 Widget build(BuildContext context) {
   return Scaffold(
-    appBar: AppBar(
-      title: const Text('Foro'),
-    ),
     body: Column(
       children: [
         Expanded(

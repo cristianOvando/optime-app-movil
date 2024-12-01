@@ -41,7 +41,7 @@ class MyBottomNavBar extends StatelessWidget {
           ),
           BottomNavigationBarItem(
             icon: _buildIcon(FontAwesomeIcons.robot, 2),
-            label: 'ChatBot',
+            label: 'Asistente',
           ),
           BottomNavigationBarItem(
             icon: _buildIcon(Icons.calendar_month, 3),

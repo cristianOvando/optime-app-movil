@@ -12,6 +12,8 @@ class MyButton extends StatelessWidget {
   final FontWeight fontWeight;
   final BorderSide? borderSide;
   final List<BoxShadow>? boxShadow;
+  final Widget? icon;
+  final double iconSpacing;
   final TextStyle? textStyle;
   final EdgeInsetsGeometry? padding;
   final EdgeInsetsGeometry? margin;
@@ -30,6 +32,8 @@ class MyButton extends StatelessWidget {
     this.borderSide,
     this.boxShadow,
     this.textStyle,
+    this.icon,
+    this.iconSpacing = 8.0,
     this.padding = const EdgeInsets.all(13),
     this.margin = const EdgeInsets.symmetric(horizontal: 8),
   });

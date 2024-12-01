@@ -6,7 +6,7 @@
   import '../components/my_button.dart';
   import 'package:shared_preferences/shared_preferences.dart';
   import 'package:firebase_auth/firebase_auth.dart'; 
-  import 'package:google_sign_in/google_sign_in.dart'; 
+  import 'package:bcrypt/bcrypt.dart';
 
 
   const List<String> SCOPES = [
@@ -29,7 +29,7 @@
     bool showForgotPassword = false; 
     final AuthServiceGoogle _authServiceGoogle = AuthServiceGoogle(); 
 
-  void signIn() async {
+void signIn() async {
   if (usernameController.text.isEmpty || passwordController.text.isEmpty) {
     Helpers.showErrorDialog(context, 'Por favor, llena todos los campos.');
     return;
@@ -37,36 +37,45 @@
 
   setState(() => isLoading = true);
 
-  final result = await AuthService.login(
-    usernameController.text,
-    passwordController.text,
-  );
-
-  setState(() => isLoading = false);
-
-  if (result != null && result['access_token'] != null) {
-    print('Inicio de sesión exitoso: $result');
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('access_token', result['access_token']);
-    await prefs.setString('token_type', result['token_type']);
-    await prefs.setInt('user_id', result['user_id']);
+  try {
+   
+    final hashedPassword = BCrypt.hashpw(passwordController.text, BCrypt.gensalt());
+    final result = await AuthService.login(
+      usernameController.text,
+      hashedPassword,
+    );
     
-    Helpers.showSuccessDialog(
-      context,
-      'Éxito',
-      'Inicio de sesión exitoso.',
-      '/Home',  
-    );
-  } else {
-    print('Error en inicio de sesión: $result');
-    Helpers.showErrorDialog(
-      context,
-      result != null && result.containsKey('message') && result['message'] != null
-          ? result['message']
-          : 'Error desconocido: ${result?['error'] ?? 'Sin detalles del error'}',
-    );
+    setState(() => isLoading = false);
+
+    if (result != null && result['access_token'] != null) {
+      print('Inicio de sesión exitoso: $result');
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('access_token', result['access_token']);
+      await prefs.setString('token_type', result['token_type']);
+      await prefs.setInt('user_id', result['user_id']);
+      
+      Helpers.showSuccessDialog(
+        context,
+        'Éxito',
+        'Inicio de sesión exitoso.',
+        '/Home',  
+      );
+    } else {
+      print('Error en inicio de sesión: $result');
+      Helpers.showErrorDialog(
+        context,
+        result != null && result.containsKey('message') && result['message'] != null
+            ? result['message']
+            : 'Error desconocido: ${result?['error'] ?? 'Sin detalles del error'}',
+      );
+    }
+  } catch (e) {
+    setState(() => isLoading = false);
+    print('Error durante el inicio de sesión: $e');
+    Helpers.showErrorDialog(context, 'Ocurrió un error inesperado. Inténtalo de nuevo.');
   }
 }
+
 
 Future<User?> signInWithGoogle() async {
   try {
@@ -94,7 +103,7 @@ Future<User?> signInWithGoogle() async {
                 const Text(
                   'OPTIME',
                   style: TextStyle(
-                    fontSize: 36, 
+                    fontSize: 34, 
                     fontWeight: FontWeight.w900, 
                     color: Color.fromARGB(255, 22, 123, 206),
                     fontFamily: 'Roboto', 
@@ -166,8 +175,7 @@ Future<User?> signInWithGoogle() async {
                   ),
                   fillColor: Colors.white,
                 ),
-                const SizedBox(height: 20),
-                const SizedBox(height: 50),
+                const SizedBox(height: 70),
                 isLoading
                     ? const CircularProgressIndicator()
                     : MyButton(
@@ -178,7 +186,7 @@ Future<User?> signInWithGoogle() async {
                         borderRadius: 20.0,
                         color: Color(0xFF167BCE),
                         textColor: Colors.white,
-                        fontSize: 18,
+                        fontSize: 16,
                         fontWeight: FontWeight.w600,
                         borderSide: BorderSide(
                           color: Colors.black,
@@ -209,7 +217,7 @@ Future<User?> signInWithGoogle() async {
                   child: Container(
                     padding: const EdgeInsets.all(12.0),
                     decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
+                      border: Border.all(color: const Color.fromARGB(255, 254, 254, 254)),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Image.asset(
@@ -219,7 +227,7 @@ Future<User?> signInWithGoogle() async {
                     ),
                   ),
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 40),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

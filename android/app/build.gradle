@@ -37,6 +37,8 @@ android {
         implementation platform('com.google.firebase:firebase-bom:32.0.0')
         implementation 'com.google.firebase:firebase-auth'
         implementation 'com.google.android.gms:play-services-auth:20.6.0'
+        implementation 'io.flutter:flutter_embedding_debug:1.0.0'
+        implementation 'com.flutter.sdk:path_provider_android:2.0.0'
     }
 
 }

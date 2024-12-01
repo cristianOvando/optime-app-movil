@@ -5,16 +5,15 @@ import 'package:optime/screens/classroom_screen.dart';
 import 'package:optime/screens/login_screen.dart';
 import 'package:optime/screens/create_contact_screen.dart';
 import 'package:optime/screens/home_screen.dart';
+import 'package:optime/screens/myschedule_screen.dart';
 import 'package:optime/screens/register_user_screen.dart.dart';
 import 'package:optime/screens/validate_code_screen.dart';
 import 'package:optime/screens/timer_screen.dart';
 import 'package:optime/screens/statistics_screen.dart';
 import 'package:optime/screens/settings_screen.dart';
-import 'package:optime/screens/schedule_screen.dart';
 import 'package:optime/screens/forum_screen.dart';
 import 'package:optime/screens/chatbot_screen.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:optime/services/auth_service_google.dart';
 
 Map<String, dynamic> config = {};
 
@@ -102,7 +101,7 @@ class _MyAppState extends State<MyApp> {
         '/Timer': (context) => const TimerScreen(),
         '/Statistics': (context) => StatisticsScreen(),
         '/Settings': (context) => const SettingsScreen(),
-        '/Schedule': (context) => const ScheduleScreen(),
+        '/Schedule': (context) => const CalendarScreen(),
         '/Forum': (context) => const ForumScreen(),
         '/Chatbot': (context) => const ChatbotPage(),
         '/Classroom': (context) => _googleUser != null

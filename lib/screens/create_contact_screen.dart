@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/contact_service.dart';
 import '../utils/helpers.dart';
+import 'package:flutter/services.dart';
 import '../components/my_textfield.dart';
 import '../components/my_button.dart';
 
@@ -35,7 +36,7 @@ class _CreateContactScreenState extends State<CreateContactScreen> {
         .hasMatch(emailController.text.trim())) {
       Helpers.showErrorDialog(
         context,
-        'Solo se permiten correo con terminación @upchiapas.edu.mx.',
+        'Solo se permiten correos institucionales(UP)',
       );
       return;
     }
@@ -203,23 +204,25 @@ class _CreateContactScreenState extends State<CreateContactScreen> {
                 width: 400,
                 height: 60,
                 borderRadius: 15.0,
-                hintTextStyle: TextStyle(
+                hintTextStyle: const TextStyle(
                   color: Colors.grey,
                   fontSize: 16,
                 ),
-                textStyle: TextStyle(
+                textStyle: const TextStyle(
                   color: Colors.black,
                   fontSize: 18,
                 ),
-                enabledBorderSide: BorderSide(
-                  color: const Color.fromARGB(255, 181, 206, 227),
+                enabledBorderSide: const BorderSide(
+                  color: Color.fromARGB(255, 181, 206, 227),
                   width: 0.5,
                 ),
-                focusedBorderSide: BorderSide(
-                  color: const Color.fromARGB(255, 75, 151, 213),
+                focusedBorderSide: const BorderSide(
+                  color: Color.fromARGB(255, 75, 151, 213),
                   width: 1.5,
                 ),
-                fillColor: Colors.white,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9+]')),
+                ],
               ),
               const SizedBox(height: 60),
               isLoading

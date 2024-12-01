@@ -11,7 +11,7 @@ class MyTextField extends StatefulWidget {
   final double borderRadius;
   final Widget? prefixIcon;
   final Widget? suffixIcon;
-  final bool toggleVisibility; 
+  final bool toggleVisibility;
   final String? Function(String?)? validator;
   final TextStyle? hintTextStyle;
   final TextStyle? textStyle;
@@ -19,8 +19,9 @@ class MyTextField extends StatefulWidget {
   final BorderSide? focusedBorderSide;
   final Color? fillColor;
   final EdgeInsetsGeometry? contentPadding;
-  final TextInputType? keyboardType; 
-  final List<TextInputFormatter>? inputFormatters; 
+  final TextInputType? keyboardType;
+  final List<TextInputFormatter>? inputFormatters;
+  final bool isPhoneNumber; // Nueva propiedad para validar números telefónicos
 
   const MyTextField({
     super.key,
@@ -41,8 +42,9 @@ class MyTextField extends StatefulWidget {
     this.focusedBorderSide,
     this.fillColor = const Color.fromARGB(255, 248, 248, 248),
     this.contentPadding = const EdgeInsets.symmetric(horizontal: 25.0),
-    this.keyboardType, 
+    this.keyboardType,
     this.inputFormatters,
+    this.isPhoneNumber = false, // Valor por defecto
   });
 
   @override
@@ -73,10 +75,34 @@ class _MyTextFieldState extends State<MyTextField> {
       child: TextField(
         controller: widget.controller,
         obscureText: isObscured,
-        onChanged: widget.onChanged,
+        onChanged: (value) {
+          if (widget.onChanged != null) {
+            widget.onChanged!(value);
+          }
+
+          if (widget.isPhoneNumber) {
+            if (!value.startsWith('+52')) {
+              widget.controller.text = '+52';
+              widget.controller.selection = TextSelection.fromPosition(
+                TextPosition(offset: widget.controller.text.length),
+              );
+            }
+
+            if (value.length > 13) {
+              widget.controller.text = value.substring(0, 13);
+              widget.controller.selection = TextSelection.fromPosition(
+                TextPosition(offset: widget.controller.text.length),
+              );
+            }
+          }
+        },
         style: widget.textStyle,
         keyboardType: widget.keyboardType,
-        inputFormatters: widget.inputFormatters,
+        inputFormatters: widget.isPhoneNumber
+            ? [
+                FilteringTextInputFormatter.allow(RegExp(r'[0-9+]')),
+              ]
+            : widget.inputFormatters,
         decoration: InputDecoration(
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(widget.borderRadius),
