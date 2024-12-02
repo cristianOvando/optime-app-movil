@@ -14,6 +14,7 @@ import 'package:optime/screens/settings_screen.dart';
 import 'package:optime/screens/forum_screen.dart';
 import 'package:optime/screens/chatbot_screen.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:optime/services/auth_service_google.dart';
 
 Map<String, dynamic> config = {};
 
@@ -51,14 +52,6 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   GoogleSignInAccount? _googleUser;
-  final GoogleSignIn _googleSignIn = GoogleSignIn(
-    scopes: <String>[
-      'https://www.googleapis.com/auth/classroom.courses.readonly',
-      'https://www.googleapis.com/auth/classroom.coursework.me',
-      'https://www.googleapis.com/auth/classroom.student-submissions.me.readonly',
-      'https://www.googleapis.com/auth/calendar.readonly',
-    ],
-  );
 
   @override
   void initState() {
@@ -67,20 +60,28 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _checkGoogleSignIn() async {
-    GoogleSignInAccount? googleUser = await _googleSignIn.signInSilently();
-    setState(() {
-      _googleUser = googleUser;
-    });
-  }
+    final GoogleSignIn googleSignIn = GoogleSignIn(
+      scopes: <String>[
+        'https://www.googleapis.com/auth/classroom.courses.readonly',
+        'https://www.googleapis.com/auth/classroom.coursework.me',
+        'https://www.googleapis.com/auth/classroom.student-submissions.me.readonly',
+        'https://www.googleapis.com/auth/calendar.readonly',
+      ],
+    );
 
-  Future<void> _handleSignIn() async {
-    try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+    GoogleSignInAccount? googleUser = await googleSignIn.signInSilently();
+    if (googleUser == null) {
+      googleUser = await googleSignIn.signIn();
+    }
+
+    if (googleUser != null) {
       setState(() {
         _googleUser = googleUser;
       });
-    } catch (error) {
-      print("Error al iniciar sesión con Google: $error");
+    } else {
+      setState(() {
+        _googleUser = null;
+      });
     }
   }
 
@@ -91,7 +92,7 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       initialRoute: _googleUser == null ? '/Login' : '/Home',
       routes: {
-        '/Login': (context) => LoginScreen(onGoogleSignIn: _handleSignIn),
+        '/Login': (context) => const LoginScreen(),
         '/Create-contact': (context) => const CreateContactScreen(),
         '/Validate-code': (context) => const ValidateCodeScreen(),
         '/Register-user': (context) => const RegisterUserScreen(),

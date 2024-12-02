@@ -6,6 +6,7 @@
   import '../components/my_button.dart';
   import 'package:shared_preferences/shared_preferences.dart';
   import 'package:firebase_auth/firebase_auth.dart'; 
+  import 'package:google_sign_in/google_sign_in.dart'; 
   import 'package:bcrypt/bcrypt.dart';
 
 
@@ -16,9 +17,7 @@
   ];
 
   class LoginScreen extends StatefulWidget {
-    final Future<void> Function()? onGoogleSignIn;
-    
-    const LoginScreen({Key? key, this.onGoogleSignIn}) : super(key: key);
+    const LoginScreen({super.key});
 
     @override
     State<LoginScreen> createState() => _LoginScreenState();
