@@ -51,6 +51,14 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   GoogleSignInAccount? _googleUser;
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    scopes: <String>[
+      'https://www.googleapis.com/auth/classroom.courses.readonly',
+      'https://www.googleapis.com/auth/classroom.coursework.me',
+      'https://www.googleapis.com/auth/classroom.student-submissions.me.readonly',
+      'https://www.googleapis.com/auth/calendar.readonly',
+    ],
+  );
 
   @override
   void initState() {
@@ -59,28 +67,20 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _checkGoogleSignIn() async {
-    final GoogleSignIn googleSignIn = GoogleSignIn(
-      scopes: <String>[
-        'https://www.googleapis.com/auth/classroom.courses.readonly',
-        'https://www.googleapis.com/auth/classroom.coursework.me',
-        'https://www.googleapis.com/auth/classroom.student-submissions.me.readonly',
-        'https://www.googleapis.com/auth/calendar.readonly',
-      ],
-    );
+    GoogleSignInAccount? googleUser = await _googleSignIn.signInSilently();
+    setState(() {
+      _googleUser = googleUser;
+    });
+  }
 
-    GoogleSignInAccount? googleUser = await googleSignIn.signInSilently();
-    if (googleUser == null) {
-      googleUser = await googleSignIn.signIn();
-    }
-
-    if (googleUser != null) {
+  Future<void> _handleSignIn() async {
+    try {
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       setState(() {
         _googleUser = googleUser;
       });
-    } else {
-      setState(() {
-        _googleUser = null;
-      });
+    } catch (error) {
+      print("Error al iniciar sesión con Google: $error");
     }
   }
 
@@ -91,7 +91,7 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       initialRoute: _googleUser == null ? '/Login' : '/Home',
       routes: {
-        '/Login': (context) => const LoginScreen(),
+        '/Login': (context) => LoginScreen(onGoogleSignIn: _handleSignIn),
         '/Create-contact': (context) => const CreateContactScreen(),
         '/Validate-code': (context) => const ValidateCodeScreen(),
         '/Register-user': (context) => const RegisterUserScreen(),
