@@ -17,7 +17,10 @@
   ];
 
   class LoginScreen extends StatefulWidget {
-    const LoginScreen({super.key});
+     final Future<void> Function()? onGoogleSignIn; 
+
+  const LoginScreen({Key? key, this.onGoogleSignIn}) : super(key: key);
+
 
     @override
     State<LoginScreen> createState() => _LoginScreenState();

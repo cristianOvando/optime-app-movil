@@ -4,8 +4,9 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        // Agrega esta línea en las dependencias
-        classpath 'com.google.gms:google-services:4.3.15'  // Agrega esta línea
+
+        classpath 'com.google.gms:google-services:4.3.15'
+        classpath 'com.android.tools.build:gradle:8.1.1'  // Agrega esta línea
     }
 }
 
